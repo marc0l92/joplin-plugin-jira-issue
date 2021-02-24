@@ -1,12 +1,12 @@
 {
 	"manifest_version": 1,
-	"id": "com.github.marc0l92.jira-tag",
+	"id": "com.github.marc0l92.joplin-plugin-jira-issue",
 	"app_min_version": "1.7",
 	"version": "1.0.0",
-	"name": "Jira Tag",
-	"description": "Retrieve Atlassian Jira issues information using their api in order to track the status of them from your notes.",
+	"name": "Jira Issue",
+	"description": "Retrieve Atlassian Jira issues information using their api in order to track the status of them from your Joplin notes.",
 	"author": "Marco LUCARELLA",
-	"homepage_url": "https://github.com/marc0l92/joplin-jira-tag",
-	"repository_url": "https://github.com/marc0l92/joplin-jira-tag",
-	"keywords": []
+	"homepage_url": "https://github.com/marc0l92/joplin-plugin-jira-issue/README.md",
+	"repository_url": "https://github.com/marc0l92/joplin-plugin-jira-issue",
+	"keywords": ["atlassian", "jira", "issue"]
 }

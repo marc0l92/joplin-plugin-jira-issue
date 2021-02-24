@@ -1,5 +1,5 @@
 {
-  "name": "joplin-plugin-jira-tag",
+  "name": "joplin-plugin-jira-issue",
   "version": "1.0.0",
   "scripts": {
     "dist": "webpack --joplin-plugin-config buildMain && webpack --joplin-plugin-config buildExtraScripts && webpack --joplin-plugin-config createArchive",
@@ -23,5 +23,6 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "yargs": "^16.2.0"
-  }
+  },
+  "dependencies": {}
 }
