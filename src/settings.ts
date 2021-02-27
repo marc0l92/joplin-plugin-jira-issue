@@ -1,4 +1,5 @@
 import joplin from 'api';
+import { ChangeEvent } from 'api/JoplinSettings';
 import { SettingItemType } from 'api/types';
 
 enum SettingDefaults {
@@ -39,7 +40,7 @@ export class Settings {
         await joplin.settings.registerSection('jiraIssue.settings', {
             label: 'Jira Issue',
             iconName: 'fa fa-sitemap',
-            description: 'JiraIssue plugin settings. Check the Jira documentation at https://docs.atlassian.com/jira-software/REST/latest'
+            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the html tag `<JiraIssue code="AAA-123">` in your notes. Use the option in the tools menu in order to download the last issue status. In order to configure the api, please check the Jira documentation at https://docs.atlassian.com/jira-software/REST/latest'
         });
 
         await joplin.settings.registerSetting('jiraHost', {
@@ -164,5 +165,35 @@ export class Settings {
             description: 'Base path of api service. Change this path if you want to select a specific api version.'
         });
 
+        // initially read settings
+        await this.read();
+    }
+
+    private async getOrDefault(event: ChangeEvent, localVar: any, setting: string): Promise<any> {
+        if (!event || event.keys.includes(setting)) {
+            return await joplin.settings.value(setting);
+        }
+        return localVar;
+    }
+
+
+    /**
+     * Update settings. Either all or only changed ones.
+     */
+    async read(event?: ChangeEvent) {
+        this._jiraHost = await this.getOrDefault(event, this._jiraHost, 'jiraHost');
+        this._apiBasePath = await this.getOrDefault(event, this._apiBasePath, 'apiBasePath');
+        this._username = await this.getOrDefault(event, this._username, 'username');
+        this._password = await this.getOrDefault(event, this._password, 'password');
+
+        this._renderCode = await this.getOrDefault(event, this._renderCode, 'renderCode');
+        this._renderPriority = await this.getOrDefault(event, this._renderPriority, 'renderPriority');
+        this._renderStatus = await this.getOrDefault(event, this._renderStatus, 'renderStatus');
+        this._renderCreator = await this.getOrDefault(event, this._renderCreator, 'renderCreator');
+        this._renderReporter = await this.getOrDefault(event, this._renderReporter, 'renderReporter');
+        this._renderProgress = await this.getOrDefault(event, this._renderProgress, 'renderProgress');
+        this._renderType = await this.getOrDefault(event, this._renderType, 'renderType');
+        this._renderTypeIcon = await this.getOrDefault(event, this._renderTypeIcon, 'renderTypeIcon');
+        this._renderSummary = await this.getOrDefault(event, this._renderSummary, 'renderSummary');
     }
 }

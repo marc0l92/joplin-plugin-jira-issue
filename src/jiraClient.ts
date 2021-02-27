@@ -30,7 +30,7 @@ export class JiraClient {
             out += `![${apiResponse.fields.issuetype.name}](${apiResponse.fields.issuetype.iconUrl})`;
         }
         if (this._settings.renderCode) {
-            out += `[[${apiResponse.key}](${this._settings.jiraHost}/browse/${apiResponse.key})]`;
+            out += ` [[${apiResponse.key}](${this._settings.jiraHost}/browse/${apiResponse.key})]`;
         }
         if (props.length > 0) {
             out += '[' + props.join('; ') + ']';
@@ -40,7 +40,7 @@ export class JiraClient {
             out += `[${apiResponse.fields.aggregateprogress.percent}%]`;
         }
         if (this._settings.renderStatus) {
-            out += `[${apiResponse.fields.status.name}]`;
+            out += ` \`${apiResponse.fields.status.name}\``;
         }
         if (this._settings.renderSummary) {
             out += ` _${apiResponse.fields.summary}_`;

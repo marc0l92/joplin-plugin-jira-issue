@@ -1,5 +1,6 @@
 import joplin from 'api';
 import { ToolbarButtonLocation } from "api/types";
+import { ChangeEvent } from 'api/JoplinSettings';
 import { MenuItem, MenuItemLocation } from 'api/types';
 import { JiraClient } from "./jiraClient";
 import { Settings } from "./settings";
@@ -11,7 +12,6 @@ joplin.plugins.register({
         const jiraIssueRowPattern = new RegExp('^.*<JiraIssue +code=\"([A-Z0-9\-]+)\" *\/?>[^<]*(<\/JiraIssue>)?.*$');
         const settings = new Settings();
         const jiraClient = new JiraClient(settings);
-        console.info('onStart');
 
 
         function containsJiraIssueHtmlBlock(row: string): boolean {
@@ -23,7 +23,6 @@ joplin.plugins.register({
             console.log("processJiraIssue", rows[index]);
             const matches = rows[index].match(jiraIssueRowPattern);
             if (matches) {
-                // console.log(matches);
                 const issueStatus = await jiraClient.query(matches[1]);
                 var replacePattern;
                 if (matches[2]) {
@@ -44,7 +43,6 @@ joplin.plugins.register({
             }
             const rows = (note.body as string).split("\n");
             for (let i = 0; i < rows.length; i++) {
-                // console.log(rows[i]);
                 if (containsJiraIssueHtmlBlock(rows[i])) {
                     await processJiraIssue(rows, i);
                 }
@@ -54,6 +52,9 @@ joplin.plugins.register({
 
         // Register settings
         settings.register();
+        joplin.settings.onChange(async (event: ChangeEvent) => {
+            await settings.read(event);
+        });
 
         // Register new command
         await joplin.commands.register({
@@ -61,11 +62,10 @@ joplin.plugins.register({
             label: "Retrieve Jira Issues status", // TODO: Multilang
             iconName: "fa fa-sitemap",
             execute: async () => {
-                console.info('onPress');
                 await scanNote();
             },
         });
-        
+
         // Tools menu
         joplin.views.toolbarButtons.create(
             "jiraIssueBtn",
