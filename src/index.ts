@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { ToolbarButtonLocation } from "api/types";
-import { match } from 'assert';
-import { JiraClient } from "./lib/jiraClient";
+import { MenuItem, MenuItemLocation } from 'api/types';
+import { JiraClient } from "./jiraClient";
 
 joplin.plugins.register({
     onStart: async function () {
@@ -51,8 +51,8 @@ joplin.plugins.register({
 
         // Register new command
         await joplin.commands.register({
-            name: "jiraIssue",
-            label: "Retrieve Jira Tags status",
+            name: "jiraIssueRefresh",
+            label: "Retrieve Jira Issues status", // TODO: Multilang
             iconName: "fa fa-sitemap",
             execute: async () => {
                 console.info('onPress');
@@ -62,8 +62,18 @@ joplin.plugins.register({
 
         joplin.views.toolbarButtons.create(
             "jiraIssueBtn",
-            "jiraIssue",
+            "jiraIssueRefresh",
             ToolbarButtonLocation.EditorToolbar
         );
+
+
+        // prepare commands menu
+        const commandsSubMenu: MenuItem[] = [
+            {
+                commandName: "jiraIssueRefresh",
+                label: 'Retrieve Jira Issues status' // TODO: Multilang
+            }
+        ];
+        await joplin.views.menus.create('toolsJiraIssue', 'JiraIssue', commandsSubMenu, MenuItemLocation.Tools);
     },
 });
