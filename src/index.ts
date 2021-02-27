@@ -2,14 +2,17 @@ import joplin from 'api';
 import { ToolbarButtonLocation } from "api/types";
 import { MenuItem, MenuItemLocation } from 'api/types';
 import { JiraClient } from "./jiraClient";
+import { Settings } from "./settings";
 
 joplin.plugins.register({
     onStart: async function () {
         const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +code=\"[A-Z0-9\-]+\" *\/?>');
         const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +code=\"[A-Z0-9\-]+\" *\/?>[^<]*<\/JiraIssue>');
         const jiraIssueRowPattern = new RegExp('^.*<JiraIssue +code=\"([A-Z0-9\-]+)\" *\/?>[^<]*(<\/JiraIssue>)?.*$');
-        const jiraClient = new JiraClient();
+        const settings = new Settings();
+        const jiraClient = new JiraClient(settings);
         console.info('onStart');
+
 
         function containsJiraIssueHtmlBlock(row: string): boolean {
             // console.log("containsJiraIssueHtmlBlock", row, jiraIssueRowPattern.test(row));
@@ -49,6 +52,9 @@ joplin.plugins.register({
             await joplin.commands.execute("editor.setText", rows.join("\n"));
         }
 
+        // Register settings
+        settings.register();
+
         // Register new command
         await joplin.commands.register({
             name: "jiraIssueRefresh",
@@ -59,15 +65,15 @@ joplin.plugins.register({
                 await scanNote();
             },
         });
-
+        
+        // Tools menu
         joplin.views.toolbarButtons.create(
             "jiraIssueBtn",
             "jiraIssueRefresh",
             ToolbarButtonLocation.EditorToolbar
         );
 
-
-        // prepare commands menu
+        // Menu bar
         const commandsSubMenu: MenuItem[] = [
             {
                 commandName: "jiraIssueRefresh",
