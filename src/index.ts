@@ -7,9 +7,9 @@ import { Settings } from "./settings";
 
 joplin.plugins.register({
     onStart: async function () {
-        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +code=\"[A-Z0-9\-]+\" *\/?>');
-        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +code=\"[A-Z0-9\-]+\" *\/?>[^<]*<\/JiraIssue>');
-        const jiraIssueRowPattern = new RegExp('^.*<JiraIssue +code=\"([A-Z0-9\-]+)\" *\/?>[^<]*(<\/JiraIssue>)?.*$');
+        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>');
+        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>[^<]*<\/JiraIssue>');
+        const jiraIssueRowPattern = new RegExp('^.*<JiraIssue +key=\"([A-Z0-9\-]+)\" *\/?>[^<]*(<\/JiraIssue>)?.*$');
         const settings = new Settings();
         const jiraClient = new JiraClient(settings);
 
@@ -31,7 +31,7 @@ joplin.plugins.register({
                     replacePattern = jiraIssueTagOpenPattern;
                 }
                 rows[index] = rows[index].replace(replacePattern,
-                    '<JiraIssue code="' + matches[1] + '">' + issueStatus + '</JiraIssue>')
+                    '<JiraIssue key="' + matches[1] + '">' + issueStatus + '</JiraIssue>')
             }
         }
 
@@ -59,7 +59,7 @@ joplin.plugins.register({
         // Register new command
         await joplin.commands.register({
             name: "jiraIssueRefresh",
-            label: "Retrieve Jira Issues status", // TODO: Multilang
+            label: "Retrieve Jira Issues status",
             iconName: "fa fa-sitemap",
             execute: async () => {
                 await scanNote();
@@ -77,7 +77,7 @@ joplin.plugins.register({
         const commandsSubMenu: MenuItem[] = [
             {
                 commandName: "jiraIssueRefresh",
-                label: 'Retrieve Jira Issues status' // TODO: Multilang
+                label: 'Retrieve Jira Issues status'
             }
         ];
         await joplin.views.menus.create('toolsJiraIssue', 'JiraIssue', commandsSubMenu, MenuItemLocation.Tools);

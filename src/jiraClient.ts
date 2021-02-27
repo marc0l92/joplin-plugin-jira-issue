@@ -1,6 +1,5 @@
 import { Settings } from "./settings";
 
-// Markdown table formula calculator.
 export class JiraClient {
     private _settings: Settings;
 
@@ -29,7 +28,7 @@ export class JiraClient {
         if (this._settings.renderTypeIcon) {
             out += `![${apiResponse.fields.issuetype.name}](${apiResponse.fields.issuetype.iconUrl})`;
         }
-        if (this._settings.renderCode) {
+        if (this._settings.renderKey) {
             out += ` [[${apiResponse.key}](${this._settings.jiraHost}/browse/${apiResponse.key})]`;
         }
         if (props.length > 0) {
@@ -50,7 +49,7 @@ export class JiraClient {
 
     async query(issue: string): Promise<string> {
         return new Promise<string>((resolve) => {
-            console.info("JiraIssue: query ", this._settings.jiraHost, this._settings.apiBasePath, issue)
+            // console.info("JiraIssue: query ", this._settings.jiraHost, this._settings.apiBasePath, issue)
             var xhr = new XMLHttpRequest();
             xhr.open("GET", this._settings.jiraHost + this._settings.apiBasePath + issue, true);
             xhr.onload = (e) => {

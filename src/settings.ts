@@ -4,7 +4,7 @@ import { SettingItemType } from 'api/types';
 
 enum SettingDefaults {
     Default = 'default',
-    JiraHost = 'https://issues.apache.org/jira',
+    JiraHost = 'https://jira.secondlife.com',
     ApiBasePath = '/rest/api/latest/issue/',
 }
 
@@ -14,7 +14,7 @@ export class Settings {
     private _username: string;
     private _password: string;
 
-    private _renderCode: boolean = true;
+    private _renderKey: boolean = true;
     private _renderPriority: boolean = false;
     private _renderStatus: boolean = true;
     private _renderCreator: boolean = false;
@@ -26,7 +26,7 @@ export class Settings {
 
     get jiraHost(): string { return this._jiraHost; }
     get apiBasePath(): string { return this._apiBasePath; }
-    get renderCode(): boolean { return this._renderCode; }
+    get renderKey(): boolean { return this._renderKey; }
     get renderPriority(): boolean { return this._renderPriority; }
     get renderStatus(): boolean { return this._renderStatus; }
     get renderCreator(): boolean { return this._renderCreator; }
@@ -40,7 +40,7 @@ export class Settings {
         await joplin.settings.registerSection('jiraIssue.settings', {
             label: 'Jira Issue',
             iconName: 'fa fa-sitemap',
-            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the html tag `<JiraIssue code="AAA-123">` in your notes. Use the option in the tools menu in order to download the last issue status. In order to configure the api, please check the Jira documentation at https://docs.atlassian.com/jira-software/REST/latest'
+            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the html tag `<JiraIssue key="AAA-123">` in your notes. Use the option in the tools menu in order to download the last issue status. In order to configure the api, please check the Jira documentation at https://docs.atlassian.com/jira-software/REST/latest'
         });
 
         await joplin.settings.registerSetting('jiraHost', {
@@ -72,8 +72,8 @@ export class Settings {
         });
 
         // Render settings
-        await joplin.settings.registerSetting('renderCode', {
-            value: this._renderCode,
+        await joplin.settings.registerSetting('renderKey', {
+            value: this._renderKey,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
             public: true,
@@ -176,17 +176,13 @@ export class Settings {
         return localVar;
     }
 
-
-    /**
-     * Update settings. Either all or only changed ones.
-     */
     async read(event?: ChangeEvent) {
         this._jiraHost = await this.getOrDefault(event, this._jiraHost, 'jiraHost');
         this._apiBasePath = await this.getOrDefault(event, this._apiBasePath, 'apiBasePath');
         this._username = await this.getOrDefault(event, this._username, 'username');
         this._password = await this.getOrDefault(event, this._password, 'password');
 
-        this._renderCode = await this.getOrDefault(event, this._renderCode, 'renderCode');
+        this._renderKey = await this.getOrDefault(event, this._renderKey, 'renderKey');
         this._renderPriority = await this.getOrDefault(event, this._renderPriority, 'renderPriority');
         this._renderStatus = await this.getOrDefault(event, this._renderStatus, 'renderStatus');
         this._renderCreator = await this.getOrDefault(event, this._renderCreator, 'renderCreator');
