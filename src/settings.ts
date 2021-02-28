@@ -26,6 +26,8 @@ export class Settings {
 
     get jiraHost(): string { return this._jiraHost; }
     get apiBasePath(): string { return this._apiBasePath; }
+    get username(): string { return this._username; }
+    get password(): string { return this._password; }
     get renderKey(): boolean { return this._renderKey; }
     get renderPriority(): boolean { return this._renderPriority; }
     get renderStatus(): boolean { return this._renderStatus; }
@@ -67,6 +69,7 @@ export class Settings {
             section: 'jiraIssue.settings',
             public: true,
             advanced: false,
+            secure: true,
             label: 'Jira server: account password',
             description: 'Password of your jira account used to access the API using basic authentication.'
         });

@@ -51,7 +51,7 @@ export class JiraClient {
         return new Promise<string>((resolve) => {
             // console.info("JiraIssue: query ", this._settings.jiraHost, this._settings.apiBasePath, issue)
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", this._settings.jiraHost + this._settings.apiBasePath + issue, true);
+            xhr.open("GET", this._settings.jiraHost + this._settings.apiBasePath + issue, true, this._settings.username, this._settings.password);
             xhr.onload = (e) => {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
