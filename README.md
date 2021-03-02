@@ -18,6 +18,6 @@ In the settings is it possible to define how to connect to the Jira server and w
 
 ## TODO
 - [ ] Detect multiple tags on the same line
-- [ ] Handle multilanguage
+- [ ] Handle multi language
 - [ ] Allow custom properties
 - [ ] Allow custom output format
