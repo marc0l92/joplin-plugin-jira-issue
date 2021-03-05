@@ -5,7 +5,7 @@ import { SettingItemType } from 'api/types';
 enum SettingDefaults {
     Default = 'default',
     JiraHost = 'https://jira.secondlife.com',
-    ApiBasePath = '/rest/api/latest/issue/',
+    ApiBasePath = '/rest/api/latest',
 }
 
 export class Settings {
@@ -177,7 +177,7 @@ export class Settings {
             public: true,
             advanced: true,
             label: 'Jira server: api service base path',
-            description: 'Base path of api service. Change this path if you want to select a specific api version.'
+            description: 'Base path of api service. Change this path if you want to select a specific api version. (default: "/rest/api/latest")'
         });
 
         // initially read settings

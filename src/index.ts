@@ -7,25 +7,24 @@ import { Settings } from "./settings";
 
 joplin.plugins.register({
     onStart: async function () {
-        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>');
-        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>[^<]*<\/JiraIssue>');
-        const jiraIssueRowPattern = new RegExp('^.*<JiraIssue +key=\"([A-Z0-9\-]+)\" *\/?>[^<]*(<\/JiraIssue>)?.*$');
+        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +key=\"([A-Z0-9\-]+)\" *\/?>');
+        const jiraIssueTagClosePattern = new RegExp('<\/JiraIssue>');
+        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>.*<\/JiraIssue>');
         const settings = new Settings();
         const jiraClient = new JiraClient(settings);
 
 
         function containsJiraIssueHtmlBlock(row: string): boolean {
-            // console.log("containsJiraIssueHtmlBlock", row, jiraIssueRowPattern.test(row));
-            return jiraIssueRowPattern.test(row);
+            return jiraIssueTagOpenPattern.test(row);
         }
 
         async function processJiraIssue(rows: string[], index: number) {
             console.log("processJiraIssue", rows[index]);
-            const matches = rows[index].match(jiraIssueRowPattern);
+            const matches = rows[index].match(jiraIssueTagOpenPattern);
             if (matches) {
                 const issueStatus = await jiraClient.query(matches[1]);
-                var replacePattern;
-                if (matches[2]) {
+                let replacePattern;
+                if (jiraIssueTagClosePattern.test(rows[index])) {
                     replacePattern = jiraIssueTagOpenClosePattern;
                 } else {
                     replacePattern = jiraIssueTagOpenPattern;
