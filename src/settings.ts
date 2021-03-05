@@ -24,6 +24,8 @@ export class Settings {
     private _renderTypeIcon: boolean = true;
     private _renderSummary: boolean = true;
 
+    private _useBadges: boolean = true;
+
     get jiraHost(): string { return this._jiraHost; }
     get apiBasePath(): string { return this._apiBasePath; }
     get username(): string { return this._username; }
@@ -37,6 +39,7 @@ export class Settings {
     get renderType(): boolean { return this._renderType; }
     get renderTypeIcon(): boolean { return this._renderTypeIcon; }
     get renderSummary(): boolean { return this._renderSummary; }
+    get useBadges(): boolean { return this._useBadges; }
 
     async register() {
         await joplin.settings.registerSection('jiraIssue.settings', {
@@ -156,6 +159,15 @@ export class Settings {
             label: 'Render: summary',
             description: 'Render the field $.fields.summary'
         });
+        await joplin.settings.registerSetting('useBadges', {
+            value: this._useBadges,
+            type: SettingItemType.Bool,
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: false,
+            label: 'Render fields using badges',
+            description: 'If enabled, it will render the information using badges of [Shields.io](https://github.com/badges/shields), otherwise it will use text'
+        });
 
         // Advanced settings
         await joplin.settings.registerSetting('apiBasePath', {
@@ -194,5 +206,7 @@ export class Settings {
         this._renderType = await this.getOrDefault(event, this._renderType, 'renderType');
         this._renderTypeIcon = await this.getOrDefault(event, this._renderTypeIcon, 'renderTypeIcon');
         this._renderSummary = await this.getOrDefault(event, this._renderSummary, 'renderSummary');
+
+        this._useBadges = await this.getOrDefault(event, this._useBadges, 'useBadges');
     }
 }

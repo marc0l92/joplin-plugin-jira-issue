@@ -7,7 +7,7 @@ export class JiraClient {
         this._settings = settings;
     }
 
-    render(apiResponse: any): string {
+    renderAsText(apiResponse: any): string {
         // Properties
         let props = [];
         if (this._settings.renderPriority) {
@@ -36,7 +36,11 @@ export class JiraClient {
         }
 
         if (this._settings.renderProgress) {
-            out += `[${apiResponse.fields.aggregateprogress.percent}%]`;
+            if (apiResponse.fields.aggregateprogress.percent) {
+                out += `[${apiResponse.fields.aggregateprogress.percent}%]`;
+            } else {
+                out += `[${apiResponse.fields.aggregateprogress.progress}/${apiResponse.fields.aggregateprogress.total}]`;
+            }
         }
         if (this._settings.renderStatus) {
             out += ` \`${apiResponse.fields.status.name}\``;
@@ -45,6 +49,62 @@ export class JiraClient {
             out += ` _${apiResponse.fields.summary}_`;
         }
         return out.trim();
+    }
+
+    urlEncode(x: string): string {
+        return x;
+    }
+
+    renderWithBadges(apiResponse: any): string {
+        // Properties
+        let props = [];
+        if (this._settings.renderPriority) {
+            props.push(`![](https://img.shields.io/badge/Priority-${this.urlEncode(apiResponse.fields.priority.name)}-lightgray)`);
+        }
+        if (this._settings.renderCreator) {
+            props.push(`Creator: ${apiResponse.fields.creator.displayName}`);
+        }
+        if (this._settings.renderReporter) {
+            props.push(`Reporter: ${apiResponse.fields.reporter.displayName}`);
+        }
+        if (this._settings.renderType) {
+            props.push(`Type: ${apiResponse.fields.issuetype.name}`);
+        }
+
+        // Output string
+        let out = '';
+        if (this._settings.renderTypeIcon) {
+            out += `![${apiResponse.fields.issuetype.name}](${apiResponse.fields.issuetype.iconUrl})`;
+        }
+        if (this._settings.renderKey) {
+            out += ` [[${apiResponse.key}](${this._settings.jiraHost}/browse/${apiResponse.key})]`;
+        }
+        if (props.length > 0) {
+            out += '[' + props.join('; ') + ']';
+        }
+
+        if (this._settings.renderProgress) {
+            if (apiResponse.fields.aggregateprogress.percent) {
+                out += `[${apiResponse.fields.aggregateprogress.percent}%]`;
+            } else {
+                out += `[${apiResponse.fields.aggregateprogress.progress}/${apiResponse.fields.aggregateprogress.total}]`;
+            }
+        }
+        if (this._settings.renderStatus) {
+            out += ` \`${apiResponse.fields.status.name}\``;
+        }
+        if (this._settings.renderSummary) {
+            out += ` _${apiResponse.fields.summary}_`;
+        }
+        return out.trim();
+    }
+
+    render(apiResponse: any): string {
+        if (this._settings.useBadges) {
+            return this.renderWithBadges(apiResponse);
+        } else {
+            return this.renderAsText(apiResponse);
+        }
     }
 
     async query(issue: string): Promise<string> {
