@@ -4,17 +4,20 @@ import { ChangeEvent } from 'api/JoplinSettings';
 import { MenuItem, MenuItemLocation } from 'api/types';
 import { JiraClient } from "./jiraClient";
 import { Settings } from "./settings";
+import { View } from "./view";
 
 joplin.plugins.register({
     onStart: async function () {
+        const jiraIssueTemplate = '<JiraIssue key="AAA-123">'
         const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +key=\"([A-Z0-9\-]+)\" *\/?>');
         const jiraIssueTagClosePattern = new RegExp('<\/JiraIssue>');
         const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>.*<\/JiraIssue>');
         const settings = new Settings();
         const jiraClient = new JiraClient(settings);
+        const view = new View(settings);
 
 
-        function containsJiraIssueHtmlBlock(row: string): boolean {
+        function containsJiraBlock(row: string): boolean {
             return jiraIssueTagOpenPattern.test(row);
         }
 
@@ -22,15 +25,17 @@ joplin.plugins.register({
             console.log("processJiraIssue", rows[index]);
             const matches = rows[index].match(jiraIssueTagOpenPattern);
             if (matches) {
-                const issueStatus = await jiraClient.query(matches[1]);
+                const issue = await jiraClient.getIssue(matches[1]);
+                await jiraClient.updateStatusColorCache(issue.fields.status.name);
+                const issueView = await view.renderIssue(issue);
+
                 let replacePattern;
                 if (jiraIssueTagClosePattern.test(rows[index])) {
                     replacePattern = jiraIssueTagOpenClosePattern;
                 } else {
                     replacePattern = jiraIssueTagOpenPattern;
                 }
-                rows[index] = rows[index].replace(replacePattern,
-                    '<JiraIssue key="' + matches[1] + '">' + issueStatus + '</JiraIssue>')
+                rows[index] = rows[index].replace(replacePattern, matches[0] + issueView + '</JiraIssue>')
             }
         }
 
@@ -42,11 +47,12 @@ joplin.plugins.register({
             }
             const rows = (note.body as string).split("\n");
             for (let i = 0; i < rows.length; i++) {
-                if (containsJiraIssueHtmlBlock(rows[i])) {
+                if (containsJiraBlock(rows[i])) {
                     await processJiraIssue(rows, i);
                 }
             }
             await joplin.commands.execute("editor.setText", rows.join("\n"));
+            await joplin.commands.execute('editor.focus');
         }
 
         // Register settings
@@ -55,30 +61,40 @@ joplin.plugins.register({
             await settings.read(event);
         });
 
-        // Register new command
+        // Register command
         await joplin.commands.register({
-            name: "jiraIssueRefresh",
-            label: "Retrieve Jira Issues status",
+            name: "jiraIssue-refresh",
+            label: "JiraIssue: refresh status",
             iconName: "fa fa-sitemap",
             execute: async () => {
                 await scanNote();
             },
         });
+        await joplin.commands.register({
+            name: "jiraIssue-issueTemplate",
+            label: "JiraIssue: insert issue template",
+            iconName: "fa fa-pencil",
+            execute: async () => {
+                await joplin.commands.execute("insertText", jiraIssueTemplate);
+            },
+        });
 
-        // Tools menu
-        joplin.views.toolbarButtons.create(
-            "jiraIssueBtn",
-            "jiraIssueRefresh",
-            ToolbarButtonLocation.EditorToolbar
-        );
+        // Register toolbar buttons
+        joplin.views.toolbarButtons.create("toolsbarButton-jiraIssue-refresh", "jiraIssue-refresh", ToolbarButtonLocation.EditorToolbar);
 
-        // Menu bar
+        // Register menu
         const commandsSubMenu: MenuItem[] = [
             {
-                commandName: "jiraIssueRefresh",
-                label: 'Retrieve Jira Issues status'
-            }
+                commandName: "jiraIssue-refresh",
+            },
+            {
+                commandName: "jiraIssue-issueTemplate",
+            },
         ];
-        await joplin.views.menus.create('toolsJiraIssue', 'JiraIssue', commandsSubMenu, MenuItemLocation.Tools);
+        await joplin.views.menus.create('menu-jiraIssue', 'JiraIssue', commandsSubMenu, MenuItemLocation.Tools);
+
+        // Register context menu items
+        await joplin.views.menuItems.create('contextMenu-jiraIssue-refresh', 'jiraIssue-refresh', MenuItemLocation.EditorContextMenu);
+        await joplin.views.menuItems.create('contextMenu-jiraIssue-issueTemplate', 'jiraIssue-issueTemplate', MenuItemLocation.EditorContextMenu);
     },
 });
