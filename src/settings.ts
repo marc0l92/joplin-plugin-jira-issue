@@ -195,7 +195,6 @@ export class Settings {
     }
 
     private async getOrDefault(event: ChangeEvent, localVar: any, setting: string): Promise<any> {
-        console.log('getOrDefault', setting);
         if (!event || event.keys.includes(setting)) {
             return await joplin.settings.value(setting);
         }
@@ -203,7 +202,7 @@ export class Settings {
     }
 
     async read(event?: ChangeEvent) {
-        console.log('read', event);
+        this._statusColorsCache = {}; // Reset status color cache
         this._jiraHost = await this.getOrDefault(event, this._jiraHost, 'jiraHost');
         this._apiBasePath = await this.getOrDefault(event, this._apiBasePath, 'apiBasePath');
         this._username = await this.getOrDefault(event, this._username, 'username');

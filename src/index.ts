@@ -25,9 +25,14 @@ joplin.plugins.register({
             console.log("processJiraIssue", rows[index]);
             const matches = rows[index].match(jiraIssueTagOpenPattern);
             if (matches) {
-                const issue = await jiraClient.getIssue(matches[1]);
-                await jiraClient.updateStatusColorCache(issue.fields.status.name);
-                const issueView = await view.renderIssue(issue);
+                let issueView: string;
+                try {
+                    const issue = await jiraClient.getIssue(matches[1]);
+                    await jiraClient.updateStatusColorCache(issue.fields.status.name);
+                    issueView = await view.renderIssue(issue);
+                } catch (err) {
+                    issueView = err;
+                }
 
                 let replacePattern;
                 if (jiraIssueTagClosePattern.test(rows[index])) {
@@ -64,7 +69,7 @@ joplin.plugins.register({
         // Register command
         await joplin.commands.register({
             name: "jiraIssue-refresh",
-            label: "JiraIssue: refresh status",
+            label: "JiraIssue: refresh issues",
             iconName: "fa fa-sitemap",
             execute: async () => {
                 await scanNote();

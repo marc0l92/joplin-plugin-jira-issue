@@ -21,8 +21,12 @@ export class JiraClient {
                         // console.info(xhr.responseText);
                         resolve(JSON.parse(xhr.responseText));
                     } else {
-                        console.error(xhr.statusText);
-                        reject('Error: ' + xhr.status);
+                        console.error(xhr.responseText);
+                        try {
+                            reject('Error: ' + JSON.parse(xhr.responseText)['errorMessages'].join(', '));
+                        } catch (e) {
+                            reject('Error: ' + xhr.status);
+                        }
                     }
                 }
             };
@@ -37,7 +41,7 @@ export class JiraClient {
     async updateStatusColorCache(status: any): Promise<void> {
         return new Promise<void>((resolve) => {
             // Check cached status
-            if(this._settings.isStatusColorCached(status)){
+            if (this._settings.isStatusColorCached(status)) {
                 return resolve();
             }
             // Request the status color using the API
