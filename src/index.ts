@@ -45,19 +45,26 @@ joplin.plugins.register({
         }
 
         async function scanNote() {
+            // Get the note content
             const note = await joplin.workspace.selectedNote();
             if (!note) {
                 alert("Please select a note.");
                 return;
             }
             const rows = (note.body as string).split("\n");
+
+            // Scan the document for JiraIssue blocks
+            jiraClient.getSearchResults("project = STORM AND resolution = Unresolved ORDER BY priority DESC, updated DESC");
             for (let i = 0; i < rows.length; i++) {
                 if (containsJiraBlock(rows[i])) {
                     await processJiraIssue(rows, i);
                 }
             }
+
+            // Save changes
             await joplin.commands.execute("editor.setText", rows.join("\n"));
             await joplin.commands.execute('editor.focus');
+            alert("JiraIssue: refresh completed.");
         }
 
         // Register settings

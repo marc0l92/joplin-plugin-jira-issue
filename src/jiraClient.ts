@@ -19,7 +19,11 @@ export class JiraClient {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         // console.info(xhr.responseText);
-                        resolve(JSON.parse(xhr.responseText));
+                        try {
+                            resolve(JSON.parse(xhr.responseText));
+                        } catch (e) {
+                            reject('Error: The API response is not a JSON. Please check the host configured in the plugin options.');
+                        }
                     } else {
                         console.error(xhr.responseText);
                         try {
@@ -35,6 +39,39 @@ export class JiraClient {
                 reject('Request error');
             }
             xhr.send(null);
+        })
+    }
+
+    async getSearchResults(query: string): Promise<any> {
+        return new Promise<string>((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            // console.info("JiraIssue::getSearchResults: ", this._settings.jiraHost, this._settings.apiBasePath, '/search')
+            xhr.open("POST", this._settings.jiraHost + this._settings.apiBasePath + '/search', true);
+            if (this._settings.username) {
+                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+            }
+            xhr.onload = (e) => {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.info(xhr.responseText);//
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        console.error(xhr.responseText);
+                        try {
+                            reject('Error: ' + JSON.parse(xhr.responseText)['errorMessages'].join(', '));
+                        } catch (e) {
+                            reject('Error: ' + xhr.status);
+                        }
+                    }
+                }
+            };
+            xhr.onerror = (e) => {
+                console.error("onerror", e)
+                reject('Request error');
+            }
+            // let body: BodyInit = {};
+            xhr.send(null);
+            
         })
     }
 
