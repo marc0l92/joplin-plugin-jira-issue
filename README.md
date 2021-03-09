@@ -17,7 +17,6 @@ In the settings is it possible to define how to connect to the Jira server and w
 ![settings](./doc/settings.png)
 
 ## TODO
-- [ ] Detect multiple tags on the same line
 - [ ] Handle multi language settings
 - [ ] Allow custom properties
 - [ ] Allow custom output format

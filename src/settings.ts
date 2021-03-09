@@ -180,15 +180,15 @@ export class Settings {
         });
 
         // Advanced settings
-        await joplin.settings.registerSetting('apiBasePath', {
-            value: this._apiBasePath,
-            type: SettingItemType.String,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Jira server: api service base path',
-            description: 'Base path of api service. Change this path if you want to select a specific api version. (default: "/rest/api/latest")'
-        });
+        // await joplin.settings.registerSetting('apiBasePath', {
+        //     value: this._apiBasePath,
+        //     type: SettingItemType.String,
+        //     section: 'jiraIssue.settings',
+        //     public: true,
+        //     advanced: true,
+        //     label: 'Jira server: api service base path',
+        //     description: 'Base path of api service. Change this path if you want to select a specific api version. (default: "/rest/api/latest")'
+        // });
 
         // initially read settings
         await this.read();
@@ -201,10 +201,19 @@ export class Settings {
         return localVar;
     }
 
+    private fixUriEnd(uri: string) {
+        if (uri.charAt(uri.length - 1) === '/') {
+            return uri.slice(0, uri.length - 1);
+        }
+        return uri;
+    }
+
     async read(event?: ChangeEvent) {
         this._statusColorsCache = {}; // Reset status color cache
         this._jiraHost = await this.getOrDefault(event, this._jiraHost, 'jiraHost');
-        this._apiBasePath = await this.getOrDefault(event, this._apiBasePath, 'apiBasePath');
+        this._jiraHost = this.fixUriEnd(this._jiraHost);
+        // this._apiBasePath = await this.getOrDefault(event, this._apiBasePath, 'apiBasePath');
+        // this._apiBasePath = this.fixUriEnd(this._apiBasePath);
         this._username = await this.getOrDefault(event, this._username, 'username');
         this._password = await this.getOrDefault(event, this._password, 'password');
 
