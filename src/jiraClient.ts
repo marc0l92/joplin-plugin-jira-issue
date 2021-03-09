@@ -8,71 +8,95 @@ export class JiraClient {
     }
 
     async getIssue(issue: string): Promise<any> {
-        return new Promise<string>((resolve, reject) => {
-            let xhr = new XMLHttpRequest();
-            // console.info("JiraIssue::getIssue: ", this._settings.jiraHost, this._settings.apiBasePath, '/issue/', issue)
-            xhr.open("GET", this._settings.jiraHost + this._settings.apiBasePath + '/issue/' + issue, true);
-            if (this._settings.username) {
-                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        const resource: RequestInfo = this._settings.jiraHost + this._settings.apiBasePath + '/issue/' + issue;
+        const requestHeaders: HeadersInit = new Headers;
+        if (this._settings.username) {
+            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        }
+        const options: RequestInit = {
+            method: 'GET',
+            headers: requestHeaders,
+        }
+
+        let response: Response;
+        try {
+            response = await fetch(resource, options);
+        } catch (e) {
+            console.error('JiraClient::getIssue::response', e)
+            throw 'Request error';
+        }
+
+        if (response.status === 200) {
+            // console.info(response);
+            try {
+                return response.json();
+            } catch (e) {
+                console.error('JiraClient::getIssue::parsing', response, e);
+                throw 'Error: The API response is not a JSON. Please check the host configured in the plugin options.';
             }
-            xhr.onload = (e) => {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        // console.info(xhr.responseText);
-                        try {
-                            resolve(JSON.parse(xhr.responseText));
-                        } catch (e) {
-                            reject('Error: The API response is not a JSON. Please check the host configured in the plugin options.');
-                        }
-                    } else {
-                        console.error(xhr.responseText);
-                        try {
-                            reject('Error: ' + JSON.parse(xhr.responseText)['errorMessages'].join(', '));
-                        } catch (e) {
-                            reject('Error: ' + xhr.status);
-                        }
-                    }
-                }
-            };
-            xhr.onerror = (e) => {
-                console.error("onerror", e)
-                reject('Request error');
+        } else {
+            console.error('JiraClient::getIssue::error', response);
+            let responseJson: any;
+            try {
+                responseJson = await response.json();
+            } catch (e) {
+                throw 'Error: ' + response.status;
             }
-            xhr.send(null);
-        })
+            throw 'Error: ' + responseJson['errorMessages'].join(', ');
+        }
     }
 
     async getSearchResults(query: string): Promise<any> {
-        return new Promise<string>((resolve, reject) => {
-            let xhr = new XMLHttpRequest();
-            // console.info("JiraIssue::getSearchResults: ", this._settings.jiraHost, this._settings.apiBasePath, '/search')
-            xhr.open("POST", this._settings.jiraHost + this._settings.apiBasePath + '/search', true);
-            if (this._settings.username) {
-                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        const resource: RequestInfo = this._settings.jiraHost + this._settings.apiBasePath + '/search';
+        const requestHeaders: HeadersInit = new Headers;
+        requestHeaders.set('Content-Type', 'application/json');
+        if (this._settings.username) {
+            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        }
+        const requestBody: string = JSON.stringify({
+            jql: query,
+            startAt: 0,
+            maxResults: 15,
+            fields: [
+                "summary",
+                "status",
+                "assignee"
+            ]
+        });
+        const options: RequestInit = {
+            method: 'POST',
+            headers: requestHeaders,
+            body: requestBody,
+            credentials: 'same-origin',
+        }
+        console.log(options);
+
+        let response: Response;
+        try {
+            response = await fetch(resource, options);
+        } catch (e) {
+            console.error('JiraClient::getSearchResults::response', e)
+            throw 'Request error';
+        }
+
+        if (response.status === 200) {
+            // console.info(response);
+            try {
+                return response.json();
+            } catch (e) {
+                console.error('JiraClient::getSearchResults::parsing', response, e);
+                throw 'Error: The API response is not a JSON. Please check the host configured in the plugin options.';
             }
-            xhr.onload = (e) => {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        console.info(xhr.responseText);//
-                        resolve(JSON.parse(xhr.responseText));
-                    } else {
-                        console.error(xhr.responseText);
-                        try {
-                            reject('Error: ' + JSON.parse(xhr.responseText)['errorMessages'].join(', '));
-                        } catch (e) {
-                            reject('Error: ' + xhr.status);
-                        }
-                    }
-                }
-            };
-            xhr.onerror = (e) => {
-                console.error("onerror", e)
-                reject('Request error');
+        } else {
+            console.error('JiraClient::getSearchResults::error', response, await response.text());
+            let responseJson: any;
+            try {
+                responseJson = await response.json();
+            } catch (e) {
+                throw 'Error: ' + response.status;
             }
-            // let body: BodyInit = {};
-            xhr.send(null);
-            
-        })
+            throw 'Error: ' + responseJson['errorMessages'].join(', ');
+        }
     }
 
     async updateStatusColorCache(status: any): Promise<void> {

@@ -54,7 +54,7 @@ joplin.plugins.register({
             const rows = (note.body as string).split("\n");
 
             // Scan the document for JiraIssue blocks
-            jiraClient.getSearchResults("project = STORM AND resolution = Unresolved ORDER BY priority DESC, updated DESC");
+            // console.log(await jiraClient.getSearchResults("project = STORM AND resolution = Unresolved ORDER BY priority DESC, updated DESC"));
             for (let i = 0; i < rows.length; i++) {
                 if (containsJiraBlock(rows[i])) {
                     await processJiraIssue(rows, i);

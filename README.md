@@ -20,3 +20,4 @@ In the settings is it possible to define how to connect to the Jira server and w
 - [ ] Handle multi language settings
 - [ ] Allow custom properties
 - [ ] Allow custom output format
+- [ ] Handle request timeout
