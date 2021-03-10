@@ -100,34 +100,49 @@ export class JiraClient {
     }
 
     async updateStatusColorCache(status: any): Promise<void> {
-        return new Promise<void>((resolve) => {
-            // Check cached status
-            if (this._settings.isStatusColorCached(status)) {
-                return resolve();
+        // Check cached status
+        if (this._settings.isStatusColorCached(status)) {
+            return;
+        }
+
+        // Request the status color using the API
+        const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/status/' + status);
+        const requestHeaders: HeadersInit = new Headers;
+        if (this._settings.username) {
+            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        }
+        const options: RequestInit = {
+            method: 'GET',
+            headers: requestHeaders,
+        }
+
+        let response: Response;
+        try {
+            response = await fetch(url.toString(), options);
+        } catch (e) {
+            console.error('JiraClient::getIssue::response', e)
+            throw 'Request error';
+        }
+
+        if (response.status === 200) {
+            // console.info(response);
+            try {
+                const responseJson = await response.json();
+                this._settings.addStatusColor(status, responseJson.statusCategory.colorName);
+                return;
+            } catch (e) {
+                console.error('JiraClient::getIssue::parsing', response, e);
+                throw 'Error: The API response is not a JSON. Please check the host configured in the plugin options.';
             }
-            // Request the status color using the API
-            let xhr = new XMLHttpRequest();
-            xhr.open("GET", this._settings.jiraHost + this._settings.apiBasePath + '/status/' + status, true);
-            if (this._settings.username) {
-                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        } else {
+            console.error('JiraClient::getIssue::error', response);
+            let responseJson: any;
+            try {
+                responseJson = await response.json();
+            } catch (e) {
+                throw 'Error: ' + response.status;
             }
-            xhr.onload = (e) => {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        // console.info(xhr.responseText);
-                        const responseJson = JSON.parse(xhr.responseText);
-                        this._settings.addStatusColor(status, responseJson.statusCategory.colorName);
-                    } else {
-                        console.error(xhr.statusText);
-                    }
-                    return resolve();
-                }
-            };
-            xhr.onerror = (e) => {
-                console.error("updateStatusColorCache -> onerror", e)
-                return resolve();
-            }
-            xhr.send(null);
-        })
+            throw 'Error: ' + responseJson['errorMessages'].join(', ');
+        }
     }
 }
