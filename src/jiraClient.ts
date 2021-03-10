@@ -8,7 +8,7 @@ export class JiraClient {
     }
 
     async getIssue(issue: string): Promise<any> {
-        const resource: RequestInfo = this._settings.jiraHost + this._settings.apiBasePath + '/issue/' + issue;
+        const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/issue/' + issue);
         const requestHeaders: HeadersInit = new Headers;
         if (this._settings.username) {
             requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
@@ -20,7 +20,7 @@ export class JiraClient {
 
         let response: Response;
         try {
-            response = await fetch(resource, options);
+            response = await fetch(url.toString(), options);
         } catch (e) {
             console.error('JiraClient::getIssue::response', e)
             throw 'Request error';
@@ -47,33 +47,26 @@ export class JiraClient {
     }
 
     async getSearchResults(query: string): Promise<any> {
-        const resource: RequestInfo = this._settings.jiraHost + this._settings.apiBasePath + '/search';
+        const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/search');
         const requestHeaders: HeadersInit = new Headers;
-        requestHeaders.set('Content-Type', 'application/json');
         if (this._settings.username) {
             requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
         }
-        const requestBody: string = JSON.stringify({
+        const queryParameters = new URLSearchParams({
             jql: query,
-            startAt: 0,
-            maxResults: 15,
-            fields: [
-                "summary",
-                "status",
-                "assignee"
-            ]
+            startAt: "0",
+            maxResults: "10",
+            fields: "summary,status,assignee"
         });
+        url.search = queryParameters.toString();
         const options: RequestInit = {
-            method: 'POST',
+            method: 'GET',
             headers: requestHeaders,
-            body: requestBody,
-            credentials: 'same-origin',
         }
-        console.log(options);
 
         let response: Response;
         try {
-            response = await fetch(resource, options);
+            response = await fetch(url.toString(), options);
         } catch (e) {
             console.error('JiraClient::getSearchResults::response', e)
             throw 'Request error';
