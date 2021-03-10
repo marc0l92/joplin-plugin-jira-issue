@@ -8,10 +8,13 @@ import { View } from "./view";
 
 joplin.plugins.register({
     onStart: async function () {
-        const jiraIssueTemplate = '<JiraIssue key="AAA-123">'
-        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +key=\"([A-Z0-9\-]+)\" *\/?>');
+        const jiraIssueTemplate = '<JiraIssue key="AAA-123">';
+        const jiraQueryTemplate = '<JiraIssue jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="20">';
+
+        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>');
+        const jiraIssueAttributesPattern = new RegExp(' *(?<key>[a-z]+)=\"(?<value>[^"]+)\" *');
         const jiraIssueTagClosePattern = new RegExp('<\/JiraIssue>');
-        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +key=\"[A-Z0-9\-]+\" *\/?>.*<\/JiraIssue>');
+        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>');
         const settings = new Settings();
         const jiraClient = new JiraClient(settings);
         const view = new View(settings);
@@ -21,13 +24,27 @@ joplin.plugins.register({
             return jiraIssueTagOpenPattern.test(row);
         }
 
-        async function processJiraIssue(rows: string[], index: number) {
+        function unpackAttributes(attributesStr: string): any {
+            const attributesObj = {};
+            while (attributesStr.length > 0) {
+                const matches = attributesStr.match(jiraIssueAttributesPattern);
+                if (!matches || !matches.groups) {
+                    break;
+                }
+                attributesObj[matches.groups.key] = matches.groups.value;
+                attributesStr = attributesStr.slice(matches[0].length);
+            }
+            return attributesObj;
+        }
+
+        async function processJiraIssue(rows: string[], index: number): Promise<void> {
             console.log("processJiraIssue", rows[index]);
             const matches = rows[index].match(jiraIssueTagOpenPattern);
-            if (matches) {
+            if (matches && matches.groups) {
                 let issueView: string;
                 try {
-                    const issue = await jiraClient.getIssue(matches[1]);
+                    const attributes = unpackAttributes(matches.groups.attributes);
+                    const issue = await jiraClient.getIssue(attributes.key);
                     await jiraClient.updateStatusColorCache(issue.fields.status.name);
                     issueView = await view.renderIssue(issue);
                 } catch (err) {
@@ -54,7 +71,7 @@ joplin.plugins.register({
             const rows = (note.body as string).split("\n");
 
             // Scan the document for JiraIssue blocks
-            // console.log(await jiraClient.getSearchResults("project = STORM AND resolution = Unresolved ORDER BY priority DESC, updated DESC"));
+            // await jiraClient.getSearchResults("project = STORM AND resolution = Unresolved ORDER BY priority DESC, updated DESC");
             for (let i = 0; i < rows.length; i++) {
                 if (containsJiraBlock(rows[i])) {
                     await processJiraIssue(rows, i);
@@ -88,6 +105,14 @@ joplin.plugins.register({
             iconName: "fa fa-pencil",
             execute: async () => {
                 await joplin.commands.execute("insertText", jiraIssueTemplate);
+            },
+        });
+        await joplin.commands.register({
+            name: "jiraIssue-queryTemplate",
+            label: "JiraIssue: insert query template",
+            iconName: "fa fa-pencil",
+            execute: async () => {
+                await joplin.commands.execute("insertText", jiraQueryTemplate);
             },
         });
 
