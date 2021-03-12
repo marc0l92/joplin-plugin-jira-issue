@@ -46,7 +46,7 @@ export class JiraClient {
         }
     }
 
-    async getSearchResults(query: string): Promise<any> {
+    async getSearchResults(query: string, max: number): Promise<any> {
         const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/search');
         const requestHeaders: HeadersInit = new Headers;
         if (this._settings.username) {
@@ -55,8 +55,7 @@ export class JiraClient {
         const queryParameters = new URLSearchParams({
             jql: query,
             startAt: "0",
-            maxResults: "10",
-            fields: "summary,status,assignee"
+            maxResults: max.toString(),
         });
         url.search = queryParameters.toString();
         const options: RequestInit = {

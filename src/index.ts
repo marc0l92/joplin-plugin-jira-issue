@@ -6,28 +6,34 @@ import { JiraClient } from "./jiraClient";
 import { Settings } from "./settings";
 import { View } from "./view";
 
+enum Templates {
+    issue = '<JiraIssue key="AAA-123">',
+    search = '<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="10"></JiraSearch>',
+};
+const Patterns: any = {
+    attributes: new RegExp(' *(?<key>[a-z]+)=\"(?<value>[^"]+)\" *'),
+    issue: {
+        open: new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>'),
+        close: new RegExp('<\/JiraIssue>'),
+        openClose: new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>'),
+    },
+    search: {
+        open: new RegExp('<JiraSearch +(?<attributes>[^>]+?) *\/?>'),
+        close: new RegExp('<\/JiraSearch>'),
+    },
+};
+
 joplin.plugins.register({
     onStart: async function () {
-        const jiraIssueTemplate = '<JiraIssue key="AAA-123">';
-        const jiraQueryTemplate = '<JiraIssue jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="20">';
-
-        const jiraIssueTagOpenPattern = new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>');
-        const jiraIssueAttributesPattern = new RegExp(' *(?<key>[a-z]+)=\"(?<value>[^"]+)\" *');
-        const jiraIssueTagClosePattern = new RegExp('<\/JiraIssue>');
-        const jiraIssueTagOpenClosePattern = new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>');
         const settings = new Settings();
         const jiraClient = new JiraClient(settings);
         const view = new View(settings);
 
 
-        function containsJiraBlock(row: string): boolean {
-            return jiraIssueTagOpenPattern.test(row);
-        }
-
         function unpackAttributes(attributesStr: string): any {
             const attributesObj = {};
             while (attributesStr.length > 0) {
-                const matches = attributesStr.match(jiraIssueAttributesPattern);
+                const matches = attributesStr.match(Patterns.attributes);
                 if (!matches || !matches.groups) {
                     break;
                 }
@@ -37,27 +43,66 @@ joplin.plugins.register({
             return attributesObj;
         }
 
+        function containsJiraIssueOpenBlock(row: string): boolean {
+            return Patterns.issue.open.test(row);
+        }
+        function containsJiraIssueCloseBlock(row: string): boolean {
+            return Patterns.issue.close.test(row);
+        }
+        function containsJiraSearchOpenBlock(row: string): boolean {
+            return Patterns.search.open.test(row);
+        }
+        function containsJiraSearchCloseBlock(row: string): boolean {
+            return Patterns.search.close.test(row);
+        }
+
+
+        async function processJiraSearch(rows: string[], indexOpen: number, indexClose: number): Promise<void> {
+            console.log("processJiraSearch", rows[indexOpen]);
+            const matches = rows[indexOpen].match(Patterns.search.open);
+            if (matches && matches.groups) {
+                let viewOutput: string = '';
+                try {
+                    const attributes = unpackAttributes(matches.groups.attributes);
+                    const searchResults = await jiraClient.getSearchResults(attributes.jql, attributes.max);
+
+                    for (let i in searchResults.issues) {
+                        const issue = searchResults.issues[i];
+                        await jiraClient.updateStatusColorCache(issue.fields.status.name);
+                        viewOutput += await view.renderIssue(issue) + '\n';
+                    }
+                } catch (err) {
+                    viewOutput = err;
+                }
+
+                // Delete text between tags
+                rows.splice(indexOpen + 1, indexClose - indexOpen);
+                // Add new line
+                rows[indexOpen] = matches[0] +'\n\n'+ viewOutput + '</JiraSearch>';
+            }
+        }
+
         async function processJiraIssue(rows: string[], index: number): Promise<void> {
             console.log("processJiraIssue", rows[index]);
-            const matches = rows[index].match(jiraIssueTagOpenPattern);
+            const matches = rows[index].match(Patterns.issue.open);
             if (matches && matches.groups) {
-                let issueView: string;
+                let viewOutput: string;
                 try {
                     const attributes = unpackAttributes(matches.groups.attributes);
                     const issue = await jiraClient.getIssue(attributes.key);
                     await jiraClient.updateStatusColorCache(issue.fields.status.name);
-                    issueView = await view.renderIssue(issue);
+                    viewOutput = await view.renderIssue(issue);
                 } catch (err) {
-                    issueView = err;
+                    viewOutput = err;
                 }
 
                 let replacePattern;
-                if (jiraIssueTagClosePattern.test(rows[index])) {
-                    replacePattern = jiraIssueTagOpenClosePattern;
+                if (containsJiraIssueCloseBlock(rows[index])) {
+                    replacePattern = Patterns.issue.openClose;
                 } else {
-                    replacePattern = jiraIssueTagOpenPattern;
+                    replacePattern = Patterns.issue.open;
                 }
-                rows[index] = rows[index].replace(replacePattern, matches[0] + issueView + '</JiraIssue>')
+                rows[index] = rows[index].replace(replacePattern, matches[0] + viewOutput + '</JiraIssue>')
             }
         }
 
@@ -70,10 +115,20 @@ joplin.plugins.register({
             }
             const rows = (note.body as string).split("\n");
 
-            // Scan the document for JiraIssue blocks
-            // await jiraClient.getSearchResults("project = STORM AND resolution = Unresolved ORDER BY priority DESC, updated DESC");
+            // Scan the document for JiraSearch blocks
             for (let i = 0; i < rows.length; i++) {
-                if (containsJiraBlock(rows[i])) {
+                if (containsJiraSearchOpenBlock(rows[i])) {
+                    for (let j = i; j < rows.length; j++) {
+                        if (containsJiraSearchCloseBlock(rows[j])) {
+                            await processJiraSearch(rows, i, j);
+                            break;
+                        }
+                    }
+                }
+            }
+            // Scan the document for JiraIssue blocks
+            for (let i = 0; i < rows.length; i++) {
+                if (containsJiraIssueOpenBlock(rows[i])) {
                     await processJiraIssue(rows, i);
                 }
             }
@@ -84,6 +139,10 @@ joplin.plugins.register({
             alert("JiraIssue: refresh completed.");
         }
 
+        /**
+         * Register Commands
+         */
+
         // Register settings
         settings.register();
         joplin.settings.onChange(async (event: ChangeEvent) => {
@@ -93,7 +152,7 @@ joplin.plugins.register({
         // Register command
         await joplin.commands.register({
             name: "jiraIssue-refresh",
-            label: "JiraIssue: refresh issues",
+            label: "JiraIssue: Refresh issues",
             iconName: "fa fa-sitemap",
             execute: async () => {
                 await scanNote();
@@ -101,18 +160,18 @@ joplin.plugins.register({
         });
         await joplin.commands.register({
             name: "jiraIssue-issueTemplate",
-            label: "JiraIssue: insert issue template",
+            label: "JiraIssue: Insert issue template",
             iconName: "fa fa-pencil",
             execute: async () => {
-                await joplin.commands.execute("insertText", jiraIssueTemplate);
+                await joplin.commands.execute("insertText", Templates.issue);
             },
         });
         await joplin.commands.register({
-            name: "jiraIssue-queryTemplate",
-            label: "JiraIssue: insert query template",
+            name: "jiraIssue-searchTemplate",
+            label: "JiraIssue: Insert search template",
             iconName: "fa fa-pencil",
             execute: async () => {
-                await joplin.commands.execute("insertText", jiraQueryTemplate);
+                await joplin.commands.execute("insertText", Templates.search);
             },
         });
 
@@ -127,11 +186,15 @@ joplin.plugins.register({
             {
                 commandName: "jiraIssue-issueTemplate",
             },
+            {
+                commandName: "jiraIssue-searchTemplate",
+            },
         ];
         await joplin.views.menus.create('menu-jiraIssue', 'JiraIssue', commandsSubMenu, MenuItemLocation.Tools);
 
         // Register context menu items
         await joplin.views.menuItems.create('contextMenu-jiraIssue-refresh', 'jiraIssue-refresh', MenuItemLocation.EditorContextMenu);
         await joplin.views.menuItems.create('contextMenu-jiraIssue-issueTemplate', 'jiraIssue-issueTemplate', MenuItemLocation.EditorContextMenu);
+        await joplin.views.menuItems.create('contextMenu-jiraIssue-searchTemplate', 'jiraIssue-searchTemplate', MenuItemLocation.EditorContextMenu);
     },
 });
