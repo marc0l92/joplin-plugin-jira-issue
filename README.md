@@ -2,23 +2,43 @@
 
 This plugin allows you to track the progress of [Atlassian Jira](https://www.atlassian.com/software/jira) Issues from your [Joplin](https://joplinapp.org/) notes.
 
+## Manual Installation
+
+- Download the last release from this repository.
+- Open `Joplin > Options > Plugins > Install from File`
+- Select the jpl file you downloaded.
+
 ## Usage
-To start tracking a new issue fist configure your Jira server settings in the options.
-Then, add a JiraIssue html tag to your notes with the Issue key:
+### Configuration
+In the settings is it possible to define how to connect to the Jira server and what are the property to show.
+![settings](./doc/settings.png)
+
+### Issues tracking
+To start tracking a new issue use the HTML Tag:
 ```md
 <JiraIssue key="AAA-123">
 ```
-Finally, retrieve the last issue status:
-![retrieve status](./doc/example.gif)
+and then use the JiraIssue:Refresh button to download the last issue information.
 
-## Settings
-In the settings is it possible to define how to connect to the Jira server and what are the property to show.
+## JQL Search/Filter
+Is it possible to define a search/filter using a JQL query. Use the HTML Tag:
+```md
+<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="10"></JiraSearch>
+```
+to define the query and the max number of results to display.
 
-![settings](./doc/settings.png)
+## Usage Example
+![Usage example](./doc/usage_example.gif)
 
-## TODO
-- [ ] Handle multi language settings
-- [ ] Allow custom properties
-- [ ] Allow custom output format
+
+# Development
+If you want to contribute to this plugin you can find here some userful references:
+
+- [Joplin - Getting started with plugin development](https://joplinapp.org/api/get_started/plugins/)
+- [Joplin - Plugin API reference](https://joplinapp.org/api/references/plugin_api/classes/joplin.html)
+- [Joplin - Data API reference](https://joplinapp.org/api/references/rest_api/)
+- [Joplin - Plugin examples](https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins)
+
+
+# Future imrpvements
 - [ ] Handle request timeout
-- [ ] Validate issue key
