@@ -20,15 +20,27 @@ To start tracking a new issue use the HTML Tag:
 ```
 and then use the JiraIssue:Refresh button to download the last issue information.
 
-## JQL Search/Filter
+### JQL Search/Filter
 Is it possible to define a search/filter using a JQL query. Use the HTML Tag:
 ```md
 <JiraSearch jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="10"></JiraSearch>
 ```
 to define the query and the max number of results to display.
 
-## Usage Example
+### Usage Example
 ![Usage example](./doc/usage_example.gif)
+
+## Rendering modes
+Is it possible to use differnt rendering mode:
+
+### Text
+![Rendering Mode Text](./doc/rendering_mode_text.png)
+
+### Badge
+![Rendering Mode Badge](./doc/rendering_mode_badge.png)
+
+### Table
+![Rendering Mode Table](./doc/rendering_mode_table.png)
 
 
 # Development
