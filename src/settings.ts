@@ -34,7 +34,8 @@ export class Settings {
     private _renderTypeIcon: boolean = true;
     private _renderSummary: boolean = true;
 
-    private _useBadges: boolean = true;
+    private _issueRenderingMode: string = 'BADGE';
+    private _searchRenderingMode: string = 'TABLE';
 
     get jiraHost(): string { return this._jiraHost; }
     get apiBasePath(): string { return this._apiBasePath; }
@@ -49,13 +50,14 @@ export class Settings {
     get renderType(): boolean { return this._renderType; }
     get renderTypeIcon(): boolean { return this._renderTypeIcon; }
     get renderSummary(): boolean { return this._renderSummary; }
-    get useBadges(): boolean { return this._useBadges; }
+    get issueRenderingMode(): string { return this._issueRenderingMode; }
+    get searchRenderingMode(): string { return this._searchRenderingMode; }
 
     async register() {
         await joplin.settings.registerSection('jiraIssue.settings', {
             label: 'Jira Issue',
             iconName: 'fa fa-sitemap',
-            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the html tag `<JiraIssue key="AAA-123">` in your notes. Use the option in the tools menu in order to download the last issue status. In order to configure the api, please check the Jira documentation at https://docs.atlassian.com/jira-software/REST/latest'
+            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the context menu in your notes and add a new template. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue'
         });
 
         await joplin.settings.registerSetting('jiraHost', {
@@ -169,26 +171,29 @@ export class Settings {
             label: 'Render: summary',
             description: 'Render the field $.fields.summary'
         });
-        await joplin.settings.registerSetting('useBadges', {
-            value: this._useBadges,
-            type: SettingItemType.Bool,
+
+        await joplin.settings.registerSetting('issueRenderingMode', {
+            value: this._issueRenderingMode,
+            type: SettingItemType.String,
+            isEnum: true,
+            options: { TEXT: "Text", BADGES: "Badges" },
             section: 'jiraIssue.settings',
             public: true,
             advanced: false,
-            label: 'Render fields using badges',
-            description: 'If enabled, it will render the information using badges of [Shields.io](https://github.com/badges/shields), otherwise it will use text'
+            label: 'JiraIssues rendering mode',
+            description: 'Rendering method of JiraIssues'
         });
-
-        // Advanced settings
-        // await joplin.settings.registerSetting('apiBasePath', {
-        //     value: this._apiBasePath,
-        //     type: SettingItemType.String,
-        //     section: 'jiraIssue.settings',
-        //     public: true,
-        //     advanced: true,
-        //     label: 'Jira server: api service base path',
-        //     description: 'Base path of api service. Change this path if you want to select a specific api version. (default: "/rest/api/latest")'
-        // });
+        await joplin.settings.registerSetting('searchRenderingMode', {
+            value: this._searchRenderingMode,
+            type: SettingItemType.String,
+            isEnum: true,
+            options: { TEXT: "Text", BADGES: "Badges", TABLE: "Table" },
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: false,
+            label: 'JiraISearch rendering mode',
+            description: 'Rendering method of JiraISearch'
+        });
 
         // initially read settings
         await this.read();
@@ -227,7 +232,8 @@ export class Settings {
         this._renderTypeIcon = await this.getOrDefault(event, this._renderTypeIcon, 'renderTypeIcon');
         this._renderSummary = await this.getOrDefault(event, this._renderSummary, 'renderSummary');
 
-        this._useBadges = await this.getOrDefault(event, this._useBadges, 'useBadges');
+        this._issueRenderingMode = await this.getOrDefault(event, this._issueRenderingMode, 'issueRenderingMode');
+        this._searchRenderingMode = await this.getOrDefault(event, this._searchRenderingMode, 'searchRenderingMode');
     }
 
     addStatusColor(status: string, jiraColor: string): void {

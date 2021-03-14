@@ -66,10 +66,11 @@ joplin.plugins.register({
                     const attributes = unpackAttributes(matches.groups.attributes);
                     const searchResults = await jiraClient.getSearchResults(attributes.jql, attributes.max);
 
+                    viewOutput += await view.renderHeader(settings.searchRenderingMode);
                     for (let i in searchResults.issues) {
                         const issue = searchResults.issues[i];
                         await jiraClient.updateStatusColorCache(issue.fields.status.name);
-                        viewOutput += await view.renderIssue(issue) + '\n';
+                        viewOutput += await view.renderIssue(issue, settings.searchRenderingMode) + '\n';
                     }
                 } catch (err) {
                     viewOutput = err;
@@ -78,7 +79,7 @@ joplin.plugins.register({
                 // Delete text between tags
                 rows.splice(indexOpen + 1, indexClose - indexOpen);
                 // Add new line
-                rows[indexOpen] = matches[0] +'\n\n'+ viewOutput + '</JiraSearch>';
+                rows[indexOpen] = matches[0] + '\n\n' + viewOutput + '</JiraSearch>';
             }
         }
 
@@ -91,7 +92,7 @@ joplin.plugins.register({
                     const attributes = unpackAttributes(matches.groups.attributes);
                     const issue = await jiraClient.getIssue(attributes.key);
                     await jiraClient.updateStatusColorCache(issue.fields.status.name);
-                    viewOutput = await view.renderIssue(issue);
+                    viewOutput = await view.renderIssue(issue, settings.issueRenderingMode);
                 } catch (err) {
                     viewOutput = err;
                 }
@@ -136,7 +137,7 @@ joplin.plugins.register({
             // Save changes
             await joplin.commands.execute("editor.setText", rows.join("\n"));
             await joplin.commands.execute('editor.focus');
-            alert("JiraIssue: refresh completed.");
+            alert("JiraIssue: Refresh completed.");
         }
 
         /**
