@@ -14,13 +14,13 @@ enum Templates {
 const Patterns: any = {
     attributes: new RegExp(' *(?<key>[a-z]+)=\"(?<value>[^"]+)\" *'),
     issue: {
-        open: new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>'),
-        close: new RegExp('<\/JiraIssue>'),
-        openClose: new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>'),
+        open: new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>', 'i'),
+        close: new RegExp('<\/JiraIssue>', 'i'),
+        openClose: new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>', 'i'),
     },
     search: {
-        open: new RegExp('<JiraSearch +(?<attributes>[^>]+?) *\/?>'),
-        close: new RegExp('<\/JiraSearch>'),
+        open: new RegExp('<JiraSearch +(?<attributes>[^>]+?) *\/?>', 'i'),
+        close: new RegExp('<\/JiraSearch>', 'i'),
     },
 };
 
