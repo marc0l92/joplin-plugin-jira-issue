@@ -26,8 +26,10 @@ export class Settings {
 
     private _renderKey: boolean = true;
     private _renderPriority: boolean = false;
+    private _renderDueDate: boolean = false;
     private _renderStatus: boolean = true;
     private _renderCreator: boolean = false;
+    private _renderAssignee: boolean = false;
     private _renderReporter: boolean = false;
     private _renderProgress: boolean = false;
     private _renderType: boolean = false;
@@ -43,8 +45,10 @@ export class Settings {
     get password(): string { return this._password; }
     get renderKey(): boolean { return this._renderKey; }
     get renderPriority(): boolean { return this._renderPriority; }
+    get renderDueDate(): boolean { return this._renderDueDate; }
     get renderStatus(): boolean { return this._renderStatus; }
     get renderCreator(): boolean { return this._renderCreator; }
+    get renderAssignee(): boolean { return this._renderAssignee; }
     get renderReporter(): boolean { return this._renderReporter; }
     get renderProgress(): boolean { return this._renderProgress; }
     get renderType(): boolean { return this._renderType; }
@@ -108,6 +112,15 @@ export class Settings {
             label: 'Render: priority',
             description: 'Render the field $.fields.priority.name'
         });
+        await joplin.settings.registerSetting('renderDueDate', {
+            value: this._renderDueDate,
+            type: SettingItemType.Bool,
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: false,
+            label: 'Render: due date',
+            description: 'Render the field $.fields.duedate'
+        });
         await joplin.settings.registerSetting('renderStatus', {
             value: this._renderStatus,
             type: SettingItemType.Bool,
@@ -116,6 +129,15 @@ export class Settings {
             advanced: false,
             label: 'Render: status',
             description: 'Render the field $.fields.status.name'
+        });
+        await joplin.settings.registerSetting('renderAssignee', {
+            value: this._renderAssignee,
+            type: SettingItemType.Bool,
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: false,
+            label: 'Render: assignee',
+            description: 'Render the field $.fields.assignee.displayName'
         });
         await joplin.settings.registerSetting('renderCreator', {
             value: this._renderCreator,
@@ -224,8 +246,10 @@ export class Settings {
 
         this._renderKey = await this.getOrDefault(event, this._renderKey, 'renderKey');
         this._renderPriority = await this.getOrDefault(event, this._renderPriority, 'renderPriority');
+        this._renderDueDate = await this.getOrDefault(event, this._renderDueDate, 'renderDueDate');
         this._renderStatus = await this.getOrDefault(event, this._renderStatus, 'renderStatus');
         this._renderCreator = await this.getOrDefault(event, this._renderCreator, 'renderCreator');
+        this._renderAssignee = await this.getOrDefault(event, this._renderAssignee, 'renderAssignee');
         this._renderReporter = await this.getOrDefault(event, this._renderReporter, 'renderReporter');
         this._renderProgress = await this.getOrDefault(event, this._renderProgress, 'renderProgress');
         this._renderType = await this.getOrDefault(event, this._renderType, 'renderType');
