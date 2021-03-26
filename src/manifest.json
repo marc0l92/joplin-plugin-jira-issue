@@ -6,7 +6,7 @@
 	"name": "Jira Issue",
 	"description": "Retrieve Atlassian Jira issues information using their api in order to track the status of them from your Joplin notes.",
 	"author": "Marco LUCARELLA",
-	"homepage_url": "https://github.com/marc0l92/joplin-plugin-jira-issue/README.md",
+	"homepage_url": "https://github.com/marc0l92/joplin-plugin-jira-issue/blob/main/README.md",
 	"repository_url": "https://github.com/marc0l92/joplin-plugin-jira-issue",
 	"keywords": ["atlassian", "jira", "issue"]
 }
