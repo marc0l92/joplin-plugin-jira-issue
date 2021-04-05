@@ -23,7 +23,7 @@ and then use the JiraIssue:Refresh button to download the last issue information
 ### JQL Search/Filter
 Is it possible to define a search/filter using a JQL query. Use the HTML Tag:
 ```md
-<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="10"></JiraSearch>
+<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() AND status = 'In Progress' order by priority DESC" max="10"></JiraSearch>
 ```
 to define the query and the max number of results to display.
 
@@ -52,5 +52,12 @@ If you want to contribute to this plugin you can find here some userful referenc
 - [Joplin - Plugin examples](https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins)
 
 
+# FAQ
+- Q: How can I use double quotes (`"`) in the JiraSearch query? e.g. status = "In Progress"
+    - A: You can use single quotes (`'`) or the html tag `&quot;`
+
+
 # Future imrpvements
+- [ ] Custom templates of JiraSearch
+- [ ] Add support for wysiwyg editor
 - [ ] Handle request timeout

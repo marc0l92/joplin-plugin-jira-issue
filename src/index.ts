@@ -9,7 +9,7 @@ import { View } from "./view";
 
 enum Templates {
     issue = '<JiraIssue key="AAA-123">',
-    search = '<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() AND status = &quot;In Progress&quot; order by priority DESC" max="10"></JiraSearch>',
+    search = '<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() AND status = \'In Progress\' order by priority DESC" max="10"></JiraSearch>',
 };
 const Patterns: any = {
     attributes: new RegExp(' *(?<key>[a-z]+)=\"(?<value>[^"]+)\" *'),

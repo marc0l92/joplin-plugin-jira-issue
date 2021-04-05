@@ -186,7 +186,7 @@ export class View {
             out += ` ${issueJson.fields.summary} |`;
         }
         if (this._settings.renderDueDate) {
-            if ( issueJson.fields.duedate ) {
+            if (issueJson.fields.duedate) {
                 out += ` ${issueJson.fields.duedate}`;
             }
             out += ` |`;
