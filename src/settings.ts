@@ -38,6 +38,7 @@ export class Settings {
 
     private _issueRenderingMode: string = 'BADGE';
     private _searchRenderingMode: string = 'TABLE';
+    private _searchTemplateQuery: string = 'resolution = Unresolved AND assignee = currentUser() AND status = \'In Progress\' order by priority DESC';
 
     get jiraHost(): string { return this._jiraHost; }
     get apiBasePath(): string { return this._apiBasePath; }
@@ -56,12 +57,13 @@ export class Settings {
     get renderSummary(): boolean { return this._renderSummary; }
     get issueRenderingMode(): string { return this._issueRenderingMode; }
     get searchRenderingMode(): string { return this._searchRenderingMode; }
+    get searchTemplateQuery(): string { return this._searchTemplateQuery; }
 
     async register() {
         await joplin.settings.registerSection('jiraIssue.settings', {
             label: 'Jira Issue',
             iconName: 'fa fa-sitemap',
-            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the context menu in your notes and add a new template. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue'
+            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the context menu in your notes and add a new template. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue#readme'
         });
 
         await joplin.settings.registerSetting('jiraHost', {
@@ -213,8 +215,19 @@ export class Settings {
             section: 'jiraIssue.settings',
             public: true,
             advanced: false,
-            label: 'JiraISearch rendering mode',
-            description: 'Rendering method of JiraISearch'
+            label: 'JiraSearch rendering mode',
+            description: 'Rendering method of JiraSearch'
+        });
+
+        // Templates
+        await joplin.settings.registerSetting('searchTemplateQuery', {
+            value: this._searchTemplateQuery,
+            type: SettingItemType.String,
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: false,
+            label: 'JiraSearch template default query',
+            description: 'Default query to use when a new JiraSearch is created using the template option'
         });
 
         // initially read settings
@@ -258,6 +271,7 @@ export class Settings {
 
         this._issueRenderingMode = await this.getOrDefault(event, this._issueRenderingMode, 'issueRenderingMode');
         this._searchRenderingMode = await this.getOrDefault(event, this._searchRenderingMode, 'searchRenderingMode');
+        this._searchTemplateQuery = await this.getOrDefault(event, this._searchTemplateQuery, 'searchTemplateQuery');
     }
 
     addStatusColor(status: string, jiraColor: string): void {

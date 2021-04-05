@@ -58,6 +58,5 @@ If you want to contribute to this plugin you can find here some userful referenc
 
 
 # Future imrpvements
-- [ ] Custom templates of JiraSearch
 - [ ] Add support for wysiwyg editor
 - [ ] Handle request timeout

@@ -1,5 +1,10 @@
 import { count } from "node:console";
+import { encode } from "node:punycode";
 import { Settings } from "./settings";
+
+function badgeUri(uri: string): string {
+    return encodeURI(uri).replace(/-/g, "--");
+}
 
 export class View {
     private _settings: Settings;
@@ -63,21 +68,21 @@ export class View {
         // Properties
         let props: string[] = [];
         if (this._settings.renderPriority) {
-            props.push(`![P: ${issueJson.fields.priority.name}](https://img.shields.io/badge/P-${encodeURI(issueJson.fields.priority.name)}-lightgray)`);
+            props.push(`![P: ${issueJson.fields.priority.name}](https://img.shields.io/badge/P-${badgeUri(issueJson.fields.priority.name)}-lightgray)`);
         }
         if (this._settings.renderCreator) {
-            props.push(`![C: ${issueJson.fields.creator.displayName}](https://img.shields.io/badge/C-${encodeURI(issueJson.fields.creator.displayName)}-lightgray)`);
+            props.push(`![C: ${issueJson.fields.creator.displayName}](https://img.shields.io/badge/C-${badgeUri(issueJson.fields.creator.displayName)}-lightgray)`);
         }
         if (this._settings.renderAssignee) {
             if (issueJson.fields.assignee) {
-                props.push(`![A: ${issueJson.fields.assignee.displayName}](https://img.shields.io/badge/C-${encodeURI(issueJson.fields.assignee.displayName)}-lightgray)`);
+                props.push(`![A: ${issueJson.fields.assignee.displayName}](https://img.shields.io/badge/C-${badgeUri(issueJson.fields.assignee.displayName)}-lightgray)`);
             }
         }
         if (this._settings.renderReporter) {
-            props.push(`![R: ${issueJson.fields.reporter.displayName}](https://img.shields.io/badge/R-${encodeURI(issueJson.fields.reporter.displayName)}-lightgray)`);
+            props.push(`![R: ${issueJson.fields.reporter.displayName}](https://img.shields.io/badge/R-${badgeUri(issueJson.fields.reporter.displayName)}-lightgray)`);
         }
         if (this._settings.renderType) {
-            props.push(`![T: ${issueJson.fields.issuetype.name}](https://img.shields.io/badge/T-${encodeURI(issueJson.fields.issuetype.name)}-lightgray)`);
+            props.push(`![T: ${issueJson.fields.issuetype.name}](https://img.shields.io/badge/T-${badgeUri(issueJson.fields.issuetype.name)}-lightgray)`);
         }
 
         // Output string
@@ -90,7 +95,7 @@ export class View {
         }
         if (this._settings.renderStatus) {
             const statusColor = await this._settings.getStatusColor(issueJson.fields.status.name);
-            out += ` ![${issueJson.fields.status.name}](https://img.shields.io/badge/-${encodeURI(issueJson.fields.status.name)}-${statusColor})`;
+            out += ` ![${issueJson.fields.status.name}](https://img.shields.io/badge/-${badgeUri(issueJson.fields.status.name)}-${statusColor})`;
         }
         if (this._settings.renderSummary) {
             out += ` _${issueJson.fields.summary}_`;
