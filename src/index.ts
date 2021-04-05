@@ -6,20 +6,21 @@ import { JiraClient } from "./jiraClient";
 import { Settings } from "./settings";
 import { View } from "./view";
 
+
 enum Templates {
     issue = '<JiraIssue key="AAA-123">',
-    search = '<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() order by priority DESC" max="10"></JiraSearch>',
+    search = '<JiraSearch jql="resolution = Unresolved AND assignee = currentUser() AND status = &quot;In Progress&quot; order by priority DESC" max="10"></JiraSearch>',
 };
 const Patterns: any = {
     attributes: new RegExp(' *(?<key>[a-z]+)=\"(?<value>[^"]+)\" *'),
     issue: {
-        open: new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>'),
-        close: new RegExp('<\/JiraIssue>'),
-        openClose: new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>'),
+        open: new RegExp('<JiraIssue +(?<attributes>[^>]+?) *\/?>', 'i'),
+        close: new RegExp('<\/JiraIssue>', 'i'),
+        openClose: new RegExp('<JiraIssue +[^>]+? *\/?>.*<\/JiraIssue>', 'i'),
     },
     search: {
-        open: new RegExp('<JiraSearch +(?<attributes>[^>]+?) *\/?>'),
-        close: new RegExp('<\/JiraSearch>'),
+        open: new RegExp('<JiraSearch +(?<attributes>[^>]+?) *\/?>', 'i'),
+        close: new RegExp('<\/JiraSearch>', 'i'),
     },
 };
 
@@ -37,7 +38,7 @@ joplin.plugins.register({
                 if (!matches || !matches.groups) {
                     break;
                 }
-                attributesObj[matches.groups.key] = matches.groups.value;
+                attributesObj[matches.groups.key] = matches.groups.value.replace(/&quot;/g, '"');
                 attributesStr = attributesStr.slice(matches[0].length);
             }
             return attributesObj;

@@ -17,6 +17,11 @@ export class View {
         if (this._settings.renderCreator) {
             props.push(`C: ${issueJson.fields.creator.displayName}`);
         }
+        if (this._settings.renderAssignee) {
+            if (issueJson.fields.assignee) {
+                props.push(`A: ${issueJson.fields.assignee.displayName}`);
+            }
+        }
         if (this._settings.renderReporter) {
             props.push(`R: ${issueJson.fields.reporter.displayName}`);
         }
@@ -37,6 +42,9 @@ export class View {
         }
         if (this._settings.renderSummary) {
             out += ` _${issueJson.fields.summary}_`;
+        }
+        if (this._settings.renderDueDate && issueJson.fields.duedate) {
+            out += ` [Due: ${issueJson.fields.duedate}]`;
         }
         if (this._settings.renderProgress) {
             if (issueJson.fields.aggregateprogress.percent) {
@@ -59,6 +67,11 @@ export class View {
         }
         if (this._settings.renderCreator) {
             props.push(`![C: ${issueJson.fields.creator.displayName}](https://img.shields.io/badge/C-${encodeURI(issueJson.fields.creator.displayName)}-lightgray)`);
+        }
+        if (this._settings.renderAssignee) {
+            if (issueJson.fields.assignee) {
+                props.push(`![A: ${issueJson.fields.assignee.displayName}](https://img.shields.io/badge/C-${encodeURI(issueJson.fields.assignee.displayName)}-lightgray)`);
+            }
         }
         if (this._settings.renderReporter) {
             props.push(`![R: ${issueJson.fields.reporter.displayName}](https://img.shields.io/badge/R-${encodeURI(issueJson.fields.reporter.displayName)}-lightgray)`);
@@ -113,11 +126,15 @@ export class View {
             out += ' Summary |';
             columns++;
         }
+        if (this._settings.renderDueDate) {
+            out += ' Due Date |';
+            columns++;
+        }
         if (this._settings.renderProgress) {
             out += ' Progress |';
             columns++;
         }
-        if (this._settings.renderPriority || this._settings.renderCreator || this._settings.renderReporter || this._settings.renderType) {
+        if (this._settings.renderPriority || this._settings.renderCreator || this._settings.renderAssignee || this._settings.renderReporter || this._settings.renderType) {
             out += ' Properties |';
             columns++;
         }
@@ -139,6 +156,11 @@ export class View {
         }
         if (this._settings.renderCreator) {
             props.push(`C: ${issueJson.fields.creator.displayName}`);
+        }
+        if (this._settings.renderAssignee) {
+            if (issueJson.fields.assignee) {
+                props.push(`A: ${issueJson.fields.assignee.displayName}`);
+            }
         }
         if (this._settings.renderReporter) {
             props.push(`R: ${issueJson.fields.reporter.displayName}`);
@@ -163,11 +185,19 @@ export class View {
         if (this._settings.renderSummary) {
             out += ` ${issueJson.fields.summary} |`;
         }
+        if (this._settings.renderDueDate) {
+            if ( issueJson.fields.duedate ) {
+                out += ` ${issueJson.fields.duedate}`;
+            }
+            out += ` |`;
+        }
         if (this._settings.renderProgress) {
             if (issueJson.fields.aggregateprogress.percent) {
                 out += ` [${issueJson.fields.aggregateprogress.percent}%] |`;
             } else if (issueJson.fields.aggregateprogress.total > 0) {
                 out += ` [${issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100}] |`;
+            } else {
+                out += ` | `;
             }
         }
         if (props.length > 0) {
