@@ -7,6 +7,21 @@ export class JiraClient {
         this._settings = settings;
     }
 
+    async fetchWithTimeout(resource, options) {
+        const { timeout = 5000 } = options;
+
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+
+        const response = await fetch(resource, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(id);
+
+        return response;
+    }
+
     async getIssue(issue: string): Promise<any> {
         const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/issue/' + issue);
         const requestHeaders: HeadersInit = new Headers;
@@ -20,9 +35,12 @@ export class JiraClient {
 
         let response: Response;
         try {
-            response = await fetch(url.toString(), options);
+            response = await this.fetchWithTimeout(url.toString(), options);
         } catch (e) {
-            console.error('JiraClient::getIssue::response', e)
+            console.error('JiraClient::getIssue::response', e.name, e);
+            if (e.name === 'AbortError') {
+                throw 'Request timeout';
+            }
             throw 'Request error';
         }
 
@@ -65,9 +83,12 @@ export class JiraClient {
 
         let response: Response;
         try {
-            response = await fetch(url.toString(), options);
+            response = await this.fetchWithTimeout(url.toString(), options);
         } catch (e) {
-            console.error('JiraClient::getSearchResults::response', e)
+            console.error('JiraClient::getSearchResults::response', e.name, e);
+            if (e.name === 'AbortError') {
+                throw 'Request timeout';
+            }
             throw 'Request error';
         }
 
@@ -110,9 +131,12 @@ export class JiraClient {
 
         let response: Response;
         try {
-            response = await fetch(url.toString(), options);
+            response = await this.fetchWithTimeout(url.toString(), options);
         } catch (e) {
-            console.error('JiraClient::getIssue::response', e)
+            console.error('JiraClient::getIssue::response', e.name, e);
+            if (e.name === 'AbortError') {
+                throw 'Request timeout';
+            }
             throw 'Request error';
         }
 

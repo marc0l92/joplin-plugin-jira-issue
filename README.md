@@ -59,4 +59,4 @@ If you want to contribute to this plugin you can find here some userful referenc
 
 # Future imrpvements
 - [ ] Add support for wysiwyg editor
-- [ ] Handle request timeout
+- [ ] Improve refresh icon
