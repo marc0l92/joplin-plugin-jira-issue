@@ -112,7 +112,7 @@ joplin.plugins.register({
             // Get the note content
             const note = await joplin.workspace.selectedNote();
             if (!note) {
-                alert("Please select a note.");
+                await joplin.views.dialogs.showMessageBox("Please select a note.")
                 return;
             }
             const rows = (note.body as string).split("\n");
@@ -138,7 +138,7 @@ joplin.plugins.register({
             // Save changes
             await joplin.commands.execute("editor.setText", rows.join("\n"));
             await joplin.commands.execute('editor.focus');
-            alert("JiraIssue: Refresh completed.");
+            await joplin.views.dialogs.showMessageBox("JiraIssue: Refresh completed.")
         }
 
         /**
