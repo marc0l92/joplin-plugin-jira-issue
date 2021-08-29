@@ -2,7 +2,7 @@
 	"manifest_version": 1,
 	"id": "com.github.marc0l92.joplin-plugin-jira-issue",
 	"app_min_version": "1.7",
-	"version": "1.6.0",
+	"version": "1.7.0",
 	"name": "Jira Issue",
 	"description": "Retrieve Atlassian Jira issues information using their api in order to track the status of them from your Joplin notes.",
 	"author": "Marco LUCARELLA",
