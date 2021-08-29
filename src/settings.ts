@@ -66,7 +66,8 @@ export class Settings {
             description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the context menu in your notes and add a new template. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue#readme'
         });
 
-        await joplin.settings.registerSetting('jiraHost', {
+        await joplin.settings.registerSettings({
+            ['jiraHost']: {
             value: this._jiraHost,
             type: SettingItemType.String,
             section: 'jiraIssue.settings',
@@ -74,8 +75,8 @@ export class Settings {
             advanced: false,
             label: 'Jira server: host',
             description: 'Hostname of your company jira server.'
-        });
-        await joplin.settings.registerSetting('username', {
+        },
+        ['username']: {
             value: this._username,
             type: SettingItemType.String,
             section: 'jiraIssue.settings',
@@ -83,8 +84,8 @@ export class Settings {
             advanced: false,
             label: 'Jira server: account username',
             description: 'Username of your jira account used to access the API using basic authentication.'
-        });
-        await joplin.settings.registerSetting('password', {
+        },
+        ['password']: {
             value: this._password,
             type: SettingItemType.String,
             section: 'jiraIssue.settings',
@@ -93,10 +94,8 @@ export class Settings {
             secure: true,
             label: 'Jira server: account password',
             description: 'Password of your jira account used to access the API using basic authentication.'
-        });
-
-        // Render settings
-        await joplin.settings.registerSetting('renderKey', {
+        },
+        ['renderKey']: {
             value: this._renderKey,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -104,8 +103,8 @@ export class Settings {
             advanced: false,
             label: 'Render: code',
             description: 'Render the field $.key'
-        });
-        await joplin.settings.registerSetting('renderPriority', {
+        },
+        ['renderPriority']: {
             value: this._renderPriority,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -113,8 +112,8 @@ export class Settings {
             advanced: false,
             label: 'Render: priority',
             description: 'Render the field $.fields.priority.name'
-        });
-        await joplin.settings.registerSetting('renderDueDate', {
+        },
+        ['renderDueDate']: {
             value: this._renderDueDate,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -122,8 +121,8 @@ export class Settings {
             advanced: false,
             label: 'Render: due date',
             description: 'Render the field $.fields.duedate'
-        });
-        await joplin.settings.registerSetting('renderStatus', {
+        },
+        ['renderStatus']: {
             value: this._renderStatus,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -131,8 +130,8 @@ export class Settings {
             advanced: false,
             label: 'Render: status',
             description: 'Render the field $.fields.status.name'
-        });
-        await joplin.settings.registerSetting('renderAssignee', {
+        },
+        ['renderAssignee']: {
             value: this._renderAssignee,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -140,8 +139,8 @@ export class Settings {
             advanced: false,
             label: 'Render: assignee',
             description: 'Render the field $.fields.assignee.displayName'
-        });
-        await joplin.settings.registerSetting('renderCreator', {
+        },
+        ['renderCreator']: {
             value: this._renderCreator,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -149,8 +148,8 @@ export class Settings {
             advanced: false,
             label: 'Render: creator',
             description: 'Render the field $.fields.creator.displayName'
-        });
-        await joplin.settings.registerSetting('renderReporter', {
+        },
+        ['renderReporter']: {
             value: this._renderReporter,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -158,8 +157,8 @@ export class Settings {
             advanced: false,
             label: 'Render: reporter',
             description: 'Render the field $.fields.reporter.displayName'
-        });
-        await joplin.settings.registerSetting('renderProgress', {
+        },
+        ['renderProgress']: {
             value: this._renderProgress,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -167,8 +166,8 @@ export class Settings {
             advanced: false,
             label: 'Render: progress',
             description: 'Render the field $.fields.aggregateprogress.percent'
-        });
-        await joplin.settings.registerSetting('renderType', {
+        },
+        ['renderType']: {
             value: this._renderType,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -176,8 +175,8 @@ export class Settings {
             advanced: false,
             label: 'Render: type',
             description: 'Render the field $.fields.issuetype.name'
-        });
-        await joplin.settings.registerSetting('renderTypeIcon', {
+        },
+        ['renderTypeIcon']: {
             value: this._renderTypeIcon,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -185,8 +184,8 @@ export class Settings {
             advanced: false,
             label: 'Render: type icon',
             description: 'Render the field $.fields.issuetype.iconUrl'
-        });
-        await joplin.settings.registerSetting('renderSummary', {
+        },
+        ['renderSummary']: {
             value: this._renderSummary,
             type: SettingItemType.Bool,
             section: 'jiraIssue.settings',
@@ -194,9 +193,9 @@ export class Settings {
             advanced: false,
             label: 'Render: summary',
             description: 'Render the field $.fields.summary'
-        });
+        },
 
-        await joplin.settings.registerSetting('issueRenderingMode', {
+        ['issueRenderingMode']: {
             value: this._issueRenderingMode,
             type: SettingItemType.String,
             isEnum: true,
@@ -206,8 +205,8 @@ export class Settings {
             advanced: false,
             label: 'JiraIssues rendering mode',
             description: 'Rendering method of JiraIssues'
-        });
-        await joplin.settings.registerSetting('searchRenderingMode', {
+        },
+        ['searchRenderingMode']: {
             value: this._searchRenderingMode,
             type: SettingItemType.String,
             isEnum: true,
@@ -217,10 +216,10 @@ export class Settings {
             advanced: false,
             label: 'JiraSearch rendering mode',
             description: 'Rendering method of JiraSearch'
-        });
+        },
 
         // Templates
-        await joplin.settings.registerSetting('searchTemplateQuery', {
+        ['searchTemplateQuery']: {
             value: this._searchTemplateQuery,
             type: SettingItemType.String,
             section: 'jiraIssue.settings',
@@ -228,6 +227,7 @@ export class Settings {
             advanced: false,
             label: 'JiraSearch template default query',
             description: 'Default query to use when a new JiraSearch is created using the template option'
+        }
         });
 
         // initially read settings
