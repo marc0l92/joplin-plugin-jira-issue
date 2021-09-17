@@ -1,5 +1,3 @@
-import { count } from "node:console";
-import { encode } from "node:punycode";
 import { Settings } from "./settings";
 
 function badgeUri(uri: string): string {

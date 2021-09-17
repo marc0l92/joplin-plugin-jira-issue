@@ -1,5 +1,9 @@
 import { Settings } from "./settings";
 
+enum Config {
+    Timeout = 5000,
+}
+
 export class JiraClient {
     private _settings: Settings;
 
@@ -8,7 +12,7 @@ export class JiraClient {
     }
 
     async fetchWithTimeout(resource, options) {
-        const { timeout = 5000 } = options;
+        const { timeout = Config.Timeout } = options;
 
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);

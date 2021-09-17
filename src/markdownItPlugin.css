@@ -1,0 +1,84 @@
+.jira-container {
+    color: #172b4d;
+    font-family: "Segoe UI", "Roboto", "Fira Sans", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    line-height: normal;
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.flex-center>* {
+    margin-right: 5px;
+}
+
+.flex-center>*:last-child {
+    margin-right: 0;
+}
+
+.jira-container .jira-issue {
+    width: fit-content;
+    background: #f0f0f0;
+    padding: 3px;
+    border-radius: 3px;
+    margin: 2px 0;
+}
+
+.jira-container a {
+    text-decoration: none;
+}
+
+.jira-container a:hover {
+    text-decoration: underline;
+}
+
+/* Tags */
+
+.jira-container .tag {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    /* text-transform: uppercase; */
+    border-radius: 3px;
+    padding: 2px 5px;
+    border: 1px solid #333;
+}
+
+/* .jira-container .tag-container .tag {
+    border-width: 1px 0;
+    border-radius: 0;
+    padding: 2px 1px;
+}
+.jira-container .tag-container > .tag:first-child {
+    border-width: 1px 0px 1px 1px;
+    border-radius: 3px 0px 0px 3px;
+    padding: 2px 1px 2px 5px;
+}
+.jira-container .tag-container > .tag:last-child {
+    border-width: 1px 1px 1px 0px;
+    border-radius: 0px 3px 3px 0px;
+    padding: 2px 5px 2px 1px;
+} */
+
+.jira-container .tag.tag-blue {
+    background-color: #fff;
+    border-color: #b3d4ff;
+    color: #0052cc;
+}
+
+.jira-container .tag.tag-grey.outline {
+    background-color: #fff;
+    border-color: #c1c7d0;
+    color: #42526e;
+}
+
+.jira-container .tag.tag-grey {
+    background-color: #dfe1e6;
+    border-color: #dfe1e6;
+    color: #253858;
+}

@@ -6,6 +6,7 @@ enum SettingDefaults {
     Default = 'default',
     JiraHost = 'https://jira.secondlife.com',
     ApiBasePath = '/rest/api/latest',
+    AutoRefreshTime = '15m',
 }
 
 const JiraToBadgeColorsMap: any = {
@@ -20,9 +21,11 @@ export class Settings {
     private _statusColorsCache: any = {};
 
     private _jiraHost: string = SettingDefaults.JiraHost;
-    private _apiBasePath: string = SettingDefaults.ApiBasePath;
     private _username: string;
     private _password: string;
+
+    private _autoRefreshEnabled: boolean;
+    private _autoRefreshTime: string;
 
     private _renderKey: boolean = true;
     private _renderPriority: boolean = false;
@@ -41,9 +44,11 @@ export class Settings {
     private _searchTemplateQuery: string = 'resolution = Unresolved AND assignee = currentUser() AND status = \'In Progress\' order by priority DESC';
 
     get jiraHost(): string { return this._jiraHost; }
-    get apiBasePath(): string { return this._apiBasePath; }
+    get apiBasePath(): string { return SettingDefaults.ApiBasePath; }
     get username(): string { return this._username; }
     get password(): string { return this._password; }
+    get autoRefreshEnabled(): boolean { return this._autoRefreshEnabled; }
+    get autoRefreshTime(): string { return this._autoRefreshTime; }
     get renderKey(): boolean { return this._renderKey; }
     get renderPriority(): boolean { return this._renderPriority; }
     get renderDueDate(): boolean { return this._renderDueDate; }
@@ -67,167 +72,191 @@ export class Settings {
         });
 
         await joplin.settings.registerSettings({
+            // Connection
             ['jiraHost']: {
-            value: this._jiraHost,
-            type: SettingItemType.String,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Jira server: host',
-            description: 'Hostname of your company jira server.'
-        },
-        ['username']: {
-            value: this._username,
-            type: SettingItemType.String,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Jira server: account username',
-            description: 'Username of your jira account used to access the API using basic authentication.'
-        },
-        ['password']: {
-            value: this._password,
-            type: SettingItemType.String,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            secure: true,
-            label: 'Jira server: account password',
-            description: 'Password of your jira account used to access the API using basic authentication.'
-        },
-        ['renderKey']: {
-            value: this._renderKey,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: code',
-            description: 'Render the field $.key'
-        },
-        ['renderPriority']: {
-            value: this._renderPriority,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: priority',
-            description: 'Render the field $.fields.priority.name'
-        },
-        ['renderDueDate']: {
-            value: this._renderDueDate,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: due date',
-            description: 'Render the field $.fields.duedate'
-        },
-        ['renderStatus']: {
-            value: this._renderStatus,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: status',
-            description: 'Render the field $.fields.status.name'
-        },
-        ['renderAssignee']: {
-            value: this._renderAssignee,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: assignee',
-            description: 'Render the field $.fields.assignee.displayName'
-        },
-        ['renderCreator']: {
-            value: this._renderCreator,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: creator',
-            description: 'Render the field $.fields.creator.displayName'
-        },
-        ['renderReporter']: {
-            value: this._renderReporter,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: reporter',
-            description: 'Render the field $.fields.reporter.displayName'
-        },
-        ['renderProgress']: {
-            value: this._renderProgress,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: progress',
-            description: 'Render the field $.fields.aggregateprogress.percent'
-        },
-        ['renderType']: {
-            value: this._renderType,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: type',
-            description: 'Render the field $.fields.issuetype.name'
-        },
-        ['renderTypeIcon']: {
-            value: this._renderTypeIcon,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: type icon',
-            description: 'Render the field $.fields.issuetype.iconUrl'
-        },
-        ['renderSummary']: {
-            value: this._renderSummary,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'Render: summary',
-            description: 'Render the field $.fields.summary'
-        },
+                value: this._jiraHost,
+                type: SettingItemType.String,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                label: 'Connection: host',
+                description: 'Hostname of your company jira server.'
+            },
+            ['username']: {
+                value: this._username,
+                type: SettingItemType.String,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                label: 'Connection: username',
+                description: 'Username of your jira account used to access the API using basic authentication.'
+            },
+            ['password']: {
+                value: this._password,
+                type: SettingItemType.String,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                secure: true,
+                label: 'Connection: password',
+                description: 'Password of your jira account used to access the API using basic authentication.'
+            },
 
-        ['issueRenderingMode']: {
-            value: this._issueRenderingMode,
-            type: SettingItemType.String,
-            isEnum: true,
-            options: { TEXT: "Text", BADGES: "Badges" },
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'JiraIssues rendering mode',
-            description: 'Rendering method of JiraIssues'
-        },
-        ['searchRenderingMode']: {
-            value: this._searchRenderingMode,
-            type: SettingItemType.String,
-            isEnum: true,
-            options: { TEXT: "Text", BADGES: "Badges", TABLE: "Table" },
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'JiraSearch rendering mode',
-            description: 'Rendering method of JiraSearch'
-        },
+            // AutoRefresh
+            ['autoRefreshEnabled']: {
+                value: this._autoRefreshEnabled,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                label: 'AutoRefresh: enabled',
+                description: 'Enable issues periodic auto refresh'
+            },
+            ['autoRefreshTime']: {
+                value: this._autoRefreshTime,
+                type: SettingItemType.String,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                label: 'AutoRefresh: time',
+                description: 'Time between each auto refresh in minutes'
+            },
 
-        // Templates
-        ['searchTemplateQuery']: {
-            value: this._searchTemplateQuery,
-            type: SettingItemType.String,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: false,
-            label: 'JiraSearch template default query',
-            description: 'Default query to use when a new JiraSearch is created using the template option'
-        }
+            // Render
+            ['renderKey']: {
+                value: this._renderKey,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: code',
+                description: 'Render the field $.key'
+            },
+            ['renderPriority']: {
+                value: this._renderPriority,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: priority',
+                description: 'Render the field $.fields.priority.name'
+            },
+            ['renderDueDate']: {
+                value: this._renderDueDate,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: due date',
+                description: 'Render the field $.fields.duedate'
+            },
+            ['renderStatus']: {
+                value: this._renderStatus,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: status',
+                description: 'Render the field $.fields.status.name'
+            },
+            ['renderAssignee']: {
+                value: this._renderAssignee,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: assignee',
+                description: 'Render the field $.fields.assignee.displayName'
+            },
+            ['renderCreator']: {
+                value: this._renderCreator,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: creator',
+                description: 'Render the field $.fields.creator.displayName'
+            },
+            ['renderReporter']: {
+                value: this._renderReporter,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: reporter',
+                description: 'Render the field $.fields.reporter.displayName'
+            },
+            ['renderProgress']: {
+                value: this._renderProgress,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: progress',
+                description: 'Render the field $.fields.aggregateprogress.percent'
+            },
+            ['renderType']: {
+                value: this._renderType,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: type',
+                description: 'Render the field $.fields.issuetype.name'
+            },
+            ['renderTypeIcon']: {
+                value: this._renderTypeIcon,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: type icon',
+                description: 'Render the field $.fields.issuetype.iconUrl'
+            },
+            ['renderSummary']: {
+                value: this._renderSummary,
+                type: SettingItemType.Bool,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Render: summary',
+                description: 'Render the field $.fields.summary'
+            },
+
+            // Mode
+            ['issueRenderingMode']: {
+                value: this._issueRenderingMode,
+                type: SettingItemType.String,
+                isEnum: true,
+                options: { TEXT: "Text", BADGES: "Badges" },
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                label: 'Mode: JiraIssues rendering mode',
+                description: 'Rendering method of JiraIssues'
+            },
+            ['searchRenderingMode']: {
+                value: this._searchRenderingMode,
+                type: SettingItemType.String,
+                isEnum: true,
+                options: { TEXT: "Text", BADGES: "Badges", TABLE: "Table" },
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: false,
+                label: 'Mode: JiraSearch rendering mode',
+                description: 'Rendering method of JiraSearch'
+            },
+
+            // Template
+            ['searchTemplateQuery']: {
+                value: this._searchTemplateQuery,
+                type: SettingItemType.String,
+                section: 'jiraIssue.settings',
+                public: true,
+                advanced: true,
+                label: 'Template: JiraSearch template default query',
+                description: 'Default query to use when a new JiraSearch is created using the template option'
+            }
         });
 
         // initially read settings
@@ -250,13 +279,15 @@ export class Settings {
 
     async read(event?: ChangeEvent) {
         this._statusColorsCache = {}; // Reset status color cache
+        // Connection
         this._jiraHost = await this.getOrDefault(event, this._jiraHost, 'jiraHost');
         this._jiraHost = this.fixUriEnd(this._jiraHost);
-        // this._apiBasePath = await this.getOrDefault(event, this._apiBasePath, 'apiBasePath');
-        // this._apiBasePath = this.fixUriEnd(this._apiBasePath);
         this._username = await this.getOrDefault(event, this._username, 'username');
         this._password = await this.getOrDefault(event, this._password, 'password');
-
+        // AutoRefresh
+        this._autoRefreshEnabled = await this.getOrDefault(event, this._autoRefreshEnabled, 'autoRefreshEnabled');
+        this._autoRefreshTime = await this.getOrDefault(event, this._autoRefreshTime, 'autoRefreshTime');
+        // Render
         this._renderKey = await this.getOrDefault(event, this._renderKey, 'renderKey');
         this._renderPriority = await this.getOrDefault(event, this._renderPriority, 'renderPriority');
         this._renderDueDate = await this.getOrDefault(event, this._renderDueDate, 'renderDueDate');
@@ -268,9 +299,10 @@ export class Settings {
         this._renderType = await this.getOrDefault(event, this._renderType, 'renderType');
         this._renderTypeIcon = await this.getOrDefault(event, this._renderTypeIcon, 'renderTypeIcon');
         this._renderSummary = await this.getOrDefault(event, this._renderSummary, 'renderSummary');
-
+        // Mode
         this._issueRenderingMode = await this.getOrDefault(event, this._issueRenderingMode, 'issueRenderingMode');
         this._searchRenderingMode = await this.getOrDefault(event, this._searchRenderingMode, 'searchRenderingMode');
+        // Template
         this._searchTemplateQuery = await this.getOrDefault(event, this._searchTemplateQuery, 'searchTemplateQuery');
     }
 

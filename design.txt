@@ -1,0 +1,30 @@
+- pluginBe
+settings
+jiraAPI
+
+onMessage:
+    parse content
+    check settings
+    call jiraAPI
+    reply full html
+
+call JiraAPI:
+    use cache that updates when autorefresh expires
+
+onRefresh action:
+    clear cache
+    force reset of the note by updating note content
+
+----------------
+- markdownItBe
+content
+
+write content in markdownItFe
+
+------------------
+- markdownItFe
+UI
+
+default: loading icon
+onReady: send content to pluginBe
+onResponse: replaceHTML with provided
