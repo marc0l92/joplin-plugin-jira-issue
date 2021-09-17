@@ -209,9 +209,10 @@ joplin.plugins.register({
         await joplin.contentScripts.register(
             ContentScriptType.MarkdownItPlugin,
             Config.MarkdownBlockId,
-            './markdownItPlugin.js'
+            './contentScript/contentScript.js'
         );
-        await joplin.contentScripts.onMessage(Config.MarkdownBlockId, (message: any) => {
+        await joplin.contentScripts.onMessage(Config.MarkdownBlockId, (message: string) => {
+            console.log("pluginBe", message)
             return message + '+response';
         });
     },

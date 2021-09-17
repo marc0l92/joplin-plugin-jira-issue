@@ -65,7 +65,7 @@
     padding: 2px 5px 2px 1px;
 } */
 
-.jira-container .tag.tag-blue {
+.jira-container .tag.tag-blue.outline {
     background-color: #fff;
     border-color: #b3d4ff;
     color: #0052cc;
@@ -81,4 +81,32 @@
     background-color: #dfe1e6;
     border-color: #dfe1e6;
     color: #253858;
+}
+
+/* Spinner */
+
+.lds-dual-ring {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+}
+
+.lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    border: 2px solid;
+    border-color: #000 transparent #000 transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
