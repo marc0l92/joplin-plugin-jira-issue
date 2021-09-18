@@ -49,6 +49,10 @@
     border: 1px solid #333;
 }
 
+.jira-container .uppercase {
+    text-transform: uppercase;
+}
+
 /* .jira-container .tag-container .tag {
     border-width: 1px 0;
     border-radius: 0;

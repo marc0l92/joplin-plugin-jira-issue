@@ -1,115 +1,11 @@
-import { Settings } from "./settings";
-
-function badgeUri(uri: string): string {
-    return encodeURI(uri).replace(/-/g, "--");
-}
+import * as Handlebars from 'handlebars'
+import { Settings } from "./settings"
 
 export class View {
-    private _settings: Settings;
+    private _settings: Settings
 
     constructor(settings: Settings) {
-        this._settings = settings;
-    }
-
-    private renderIssueAsText(issueJson: any): string {
-        // Properties
-        let props: string[] = [];
-        if (this._settings.renderPriority) {
-            props.push(`P: ${issueJson.fields.priority.name}`);
-        }
-        if (this._settings.renderCreator) {
-            props.push(`C: ${issueJson.fields.creator.displayName}`);
-        }
-        if (this._settings.renderAssignee) {
-            if (issueJson.fields.assignee) {
-                props.push(`A: ${issueJson.fields.assignee.displayName}`);
-            }
-        }
-        if (this._settings.renderReporter) {
-            props.push(`R: ${issueJson.fields.reporter.displayName}`);
-        }
-        if (this._settings.renderType) {
-            props.push(`T: ${issueJson.fields.issuetype.name}`);
-        }
-
-        // Output string
-        let out: string = '';
-        if (this._settings.renderTypeIcon) {
-            out += `![${issueJson.fields.issuetype.name}](${issueJson.fields.issuetype.iconUrl})`;
-        }
-        if (this._settings.renderKey) {
-            out += ` [${issueJson.key}](${this._settings.jiraHost}/browse/${issueJson.key})`;
-        }
-        if (this._settings.renderStatus) {
-            out += ` \`${issueJson.fields.status.name}\``;
-        }
-        if (this._settings.renderSummary) {
-            out += ` _${issueJson.fields.summary}_`;
-        }
-        if (this._settings.renderDueDate && issueJson.fields.duedate) {
-            out += ` [Due: ${issueJson.fields.duedate}]`;
-        }
-        if (this._settings.renderProgress) {
-            if (issueJson.fields.aggregateprogress.percent) {
-                out += `[${issueJson.fields.aggregateprogress.percent}%]`;
-            } else if (issueJson.fields.aggregateprogress.total > 0) {
-                out += `[${issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100}]`;
-            }
-        }
-        if (props.length > 0) {
-            out += '<br/>[' + props.join('; ') + ']';
-        }
-        return out;
-    }
-
-    private async renderIssueWithBadges(issueJson: any): Promise<string> {
-        // Properties
-        let props: string[] = [];
-        if (this._settings.renderPriority) {
-            props.push(`![P: ${issueJson.fields.priority.name}](https://img.shields.io/badge/P-${badgeUri(issueJson.fields.priority.name)}-lightgray)`);
-        }
-        if (this._settings.renderCreator) {
-            props.push(`![C: ${issueJson.fields.creator.displayName}](https://img.shields.io/badge/C-${badgeUri(issueJson.fields.creator.displayName)}-lightgray)`);
-        }
-        if (this._settings.renderAssignee) {
-            if (issueJson.fields.assignee) {
-                props.push(`![A: ${issueJson.fields.assignee.displayName}](https://img.shields.io/badge/C-${badgeUri(issueJson.fields.assignee.displayName)}-lightgray)`);
-            }
-        }
-        if (this._settings.renderReporter) {
-            props.push(`![R: ${issueJson.fields.reporter.displayName}](https://img.shields.io/badge/R-${badgeUri(issueJson.fields.reporter.displayName)}-lightgray)`);
-        }
-        if (this._settings.renderType) {
-            props.push(`![T: ${issueJson.fields.issuetype.name}](https://img.shields.io/badge/T-${badgeUri(issueJson.fields.issuetype.name)}-lightgray)`);
-        }
-
-        // Output string
-        let out: string = '';
-        if (this._settings.renderTypeIcon) {
-            out += `![${issueJson.fields.issuetype.name}](${issueJson.fields.issuetype.iconUrl})`;
-        }
-        if (this._settings.renderKey) {
-            out += ` [${issueJson.key}](${this._settings.jiraHost}/browse/${issueJson.key})`;
-        }
-        if (this._settings.renderStatus) {
-            const statusColor = await this._settings.getStatusColor(issueJson.fields.status.name);
-            out += ` ![${issueJson.fields.status.name}](https://img.shields.io/badge/-${badgeUri(issueJson.fields.status.name)}-${statusColor})`;
-        }
-        if (this._settings.renderSummary) {
-            out += ` _${issueJson.fields.summary}_`;
-        }
-
-        if (this._settings.renderProgress) {
-            if (issueJson.fields.aggregateprogress.percent) {
-                out += ` [${issueJson.fields.aggregateprogress.percent}%]`;
-            } else if (issueJson.fields.aggregateprogress.total > 0) {
-                out += ` [${issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100}]`;
-            }
-        }
-        if (props.length > 0) {
-            out += '<br/>' + props.join(' ');
-        }
-        return out;
+        this._settings = settings
     }
 
     private async renderTableHeader(): Promise<string> {
@@ -209,25 +105,83 @@ export class View {
         return out;
     }
 
-    async renderHeader(renderMode: string): Promise<string> {
-        switch (renderMode) {
-            case 'TABLE':
-                return this.renderTableHeader();
-            default:
-                return '';
+    async renderIssue(issueJson: any): Promise<string> {
+        const template = Handlebars.compile(Templates.issue)
+
+        let progress
+        if (this._settings.renderProgress) {
+            if (issueJson.fields.aggregateprogress.percent) {
+                progress = issueJson.fields.aggregateprogress.percent
+            } else if (issueJson.fields.aggregateprogress.total > 0) {
+                progress = issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100
+            }
         }
+
+        return template({
+            settings: this._settings,
+            issue: issueJson,
+            statusColor: this._settings.renderStatus ? await this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
+            progress: progress,
+        })
     }
 
-    async renderIssue(issueJson: any, renderMode: string): Promise<string> {
-        switch (renderMode) {
-            case 'TEXT':
-                return this.renderIssueAsText(issueJson);
-            case 'BADGES':
-                return await this.renderIssueWithBadges(issueJson);
-            case 'TABLE':
-                return this.renderIssueAsTableRow(issueJson);
-            default:
-                return this.renderIssueAsText(issueJson);
-        }
+    async renderError(error: any): Promise<string> {
+        return 'Error: ' + error
     }
+}
+
+const Templates = {
+    issue: `
+        <div class="jira-container">
+            <details class="jira-issue">
+                <summary class="flex-center">
+                    <a href="{{settings.jiraHost}}/browse/{{issue.key}}" class="flex-center">
+                        {{#if settings.renderTypeIcon}}
+                        <img alt="{{issue.fields.issuetype.name}}" title="{{issue.fields.issuetype.name}}"
+                            src="{{issue.fields.issuetype.iconUrl}}" />
+                        {{/if}}
+                        {{#if settings.renderKey}}
+                        <span>OPEN-83</span>
+                        {{/if}}
+                    </a>
+                    {{#if settings.renderSummary}}
+                    <span>-</span>
+                    <span>{{issue.fields.summary}}</span>
+                    {{/if}}
+                    {{#if settings.renderStatus}}
+                    <span class="tag uppercase tag-{{statusColor}}" title="Status">{{issue.fields.status.name}}</span>
+                    {{/if}}
+                </summary>
+                <div class="flex-center">
+                    {{#if settings.renderPriority}}
+                    <span class="tag tag-grey" title="Priority: {{issue.fields.priority.name}}">P:
+                        {{issue.fields.priority.name}}</span>
+                    {{/if}}
+                    {{#if settings.renderCreator}}
+                    <span class="tag tag-grey" title="Creator: {{issue.fields.creator.displayName}}">C:
+                        {{issue.fields.creator.displayName}}</span>
+                    {{/if}}
+                    {{#if settings.renderAssignee}}
+                    <span class="tag tag-grey" title="Assignee: {{issue.fields.assignee.displayName}}">A:
+                        {{issue.fields.assignee.displayName}}</span>
+                    {{/if}}
+                    {{#if settings.renderReporter}}
+                    <span class="tag tag-grey" title="Reporter: {{issue.fields.reporter.displayName}}">R:
+                        {{issue.fields.reporter.displayName}}</span>
+                    {{/if}}
+                    {{#if settings.renderType}}
+                    <span class="tag tag-grey" title="Type: {{issue.fields.issuetype.name}}">T:
+                        {{issue.fields.issuetype.name}}</span>
+                    {{/if}}
+                    {{#if settings.renderProgress}}
+                    <span class="tag tag-grey" title="Progress: {{progress}}">%: {{progress}}</span>
+                    {{/if}}
+                    {{#if settings.renderDueDate}}
+                    <span class="tag tag-grey" title="Due date: {{issueJson.fields.duedate}}">Dd:
+                        {{issueJson.fields.duedate}}</span>
+                    {{/if}}
+                </div>
+            </details>
+        </div>
+        `
 }

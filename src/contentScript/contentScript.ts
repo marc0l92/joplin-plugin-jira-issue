@@ -6,35 +6,35 @@ export default function (context) {
     return {
         plugin: function (markdownIt: MarkdownIt, _options) {
             const contentScriptId = context.contentScriptId;
-            // const pluginId = context.pluginId;
-            console.log("context", context)
-            let divIndex = 0
+            // This index is incremented for each render of the plugin
+            // and it is used to create a different html id for the components generated
+            let renderIndex = 0
 
             const defaultRender = markdownIt.renderer.rules.fence || function (tokens, idx, options, env, self) {
                 return self.renderToken(tokens, idx, options)
             }
 
             markdownIt.renderer.rules.fence = function (tokens, idx, options, env, self) {
+                console.log(`Jira-Issue[${renderIndex}] render markdown-it plugin`)
                 const token = tokens[idx]
                 if (token.info !== tokenName) return defaultRender(tokens, idx, options, env, self)
 
-                divIndex++
-                const content = token.content.trim().replace(/\n/g, ';').replace(/'/g, "\'")
+                renderIndex++
+                const content = token.content.trim().replace(/\n/g, ';').replace(/'/g, "\\'").replace(/"/g, '\\"')
 
                 const sendContentToJoplinPlugin = `
-                    console.log('reload', ${divIndex});
+                    console.log('Jira-Issue[${renderIndex}] send content:', '${content}');
                     webviewApi.postMessage('${contentScriptId}', '${content}').then((response) => {
-                        console.info('Response-${divIndex}: ' + response);
+                        document.getElementById('jira-issue-root-${renderIndex}').innerHTML = response;
                     });
-                `.replace(/\n/g, ' ').replace(/"/g, '\\"')
-                // document.getElementById("jira-issue-root-${divIndex}").innerHTML = response
+                `.replace(/\n/g, ' ')
 
                 return `
-                <div id="jira-issue-root-${divIndex}" onReady="alert(${divIndex})">
+                <div id="jira-issue-root-${renderIndex}">
                     <div class="jira-container">
                         <div class="jira-issue flex-center">
                             <div class="lds-dual-ring"></div>
-                            <span id="id1">-</span>
+                            <span>-</span>
                             <span>Getting issue details...</span>
                             <span class="tag tag-grey outline" title="Status">STATUS</span>
                         </div>
