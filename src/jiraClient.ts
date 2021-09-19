@@ -54,7 +54,7 @@ export class JiraClient {
                 return response.json();
             } catch (e) {
                 console.error('JiraClient::getIssue::parsing', response, e);
-                throw 'Error: The API response is not a JSON. Please check the host configured in the plugin options.';
+                throw 'The API response is not a JSON. Please check the host configured in the plugin options.';
             }
         } else {
             console.error('JiraClient::getIssue::error', response);
@@ -62,9 +62,9 @@ export class JiraClient {
             try {
                 responseJson = await response.json();
             } catch (e) {
-                throw 'Error: ' + response.status;
+                throw 'HTTP status ' + response.status;
             }
-            throw 'Error: ' + responseJson['errorMessages'].join(', ');
+            throw responseJson['errorMessages'].join(', ');
         }
     }
 
@@ -102,7 +102,7 @@ export class JiraClient {
                 return response.json();
             } catch (e) {
                 console.error('JiraClient::getSearchResults::parsing', response, e);
-                throw 'Error: The API response is not a JSON. Please check the host configured in the plugin options.';
+                throw 'The API response is not a JSON. Please check the host configured in the plugin options.';
             }
         } else {
             console.error('JiraClient::getSearchResults::error', response, await response.text());
@@ -110,9 +110,9 @@ export class JiraClient {
             try {
                 responseJson = await response.json();
             } catch (e) {
-                throw 'Error: ' + response.status;
+                throw 'HTTP status ' + response.status;
             }
-            throw 'Error: ' + responseJson['errorMessages'].join(', ');
+            throw responseJson['errorMessages'].join(', ');
         }
     }
 
@@ -152,7 +152,7 @@ export class JiraClient {
                 return;
             } catch (e) {
                 console.error('JiraClient::getIssue::parsing', response, e);
-                throw 'Error: The API response is not a JSON. Please check the host configured in the plugin options.';
+                throw 'The API response is not a JSON. Please check the host configured in the plugin options.';
             }
         } else {
             console.error('JiraClient::getIssue::error', response);
@@ -160,9 +160,9 @@ export class JiraClient {
             try {
                 responseJson = await response.json();
             } catch (e) {
-                throw 'Error: ' + response.status;
+                throw 'HTTP status ' + response.status;
             }
-            throw 'Error: ' + responseJson['errorMessages'].join(', ');
+            throw responseJson['errorMessages'].join(', ');
         }
     }
 }

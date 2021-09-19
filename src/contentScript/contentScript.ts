@@ -30,14 +30,12 @@ export default function (context) {
                 `.replace(/\n/g, ' ')
 
                 return `
-                <div id="jira-issue-root-${renderIndex}">
-                    <div class="jira-container">
-                        <div class="jira-issue flex-center">
-                            <div class="lds-dual-ring"></div>
-                            <span>-</span>
-                            <span>Getting issue details...</span>
-                            <span class="tag tag-grey outline" title="Status">STATUS</span>
-                        </div>
+                <div id="jira-issue-root-${renderIndex}" class="jira-container">
+                    <div class="jira-issue flex-center">
+                        <div class="lds-dual-ring"></div>
+                        <span>-</span>
+                        <span>Getting issue details...</span>
+                        <span class="tag tag-grey outline" title="Status">STATUS</span>
                     </div>
                 </div>
                 <style onload="${sendContentToJoplinPlugin}"></style>

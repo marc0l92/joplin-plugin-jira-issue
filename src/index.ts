@@ -228,7 +228,7 @@ joplin.plugins.register({
                         await jiraClient.updateStatusColorCache(issue.fields.status.name)
                         outputHtml += await view.renderIssue(issue)
                     } catch (err) {
-                        outputHtml += await view.renderError(err)
+                        outputHtml += await view.renderError(issueKey, err)
                     }
                 }
             }

@@ -114,3 +114,17 @@
         transform: rotate(360deg);
     }
 }
+
+/* Icons */
+
+.error-circle {
+    width: 1.1em;
+    height: 1.1em;
+    line-height: 1.1em;
+    background: #b60c0c;
+    border-radius: 50%;
+    border: 2px solid white;
+    color: white;
+    font-size: 1.1em;
+    text-align: center;
+  }

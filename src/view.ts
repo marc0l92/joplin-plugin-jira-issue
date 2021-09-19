@@ -123,68 +123,85 @@ export class View {
             issue: issueJson,
             statusColor: this._settings.renderStatus ? await this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
             progress: progress,
-            jiraHost: this._settings.jiraHost,
+            jiraHost: this._settings.jiraHost, // TODO: why I need to extract it to make it work?
         })
-        return ''
     }
 
-    async renderError(error: any): Promise<string> {
-        return 'Error: ' + error
+    async renderError(issue: string, error: string): Promise<string> {
+        console.log('renderError', issue, error)
+        const template = Templater(Templates.error)
+
+        return template({
+            issue: issue,
+            error: error,
+        })
     }
 }
 
 const Templates = {
     issue: `
-        <div class="jira-container">
-            <details class="jira-issue">
-                <summary class="flex-center">
-                    <a href="{{jiraHost}}/browse/{{issue.key}}" class="flex-center">
-                        {{#if (settings.renderTypeIcon, issue.fields.issuetype.iconUrl)}}
-                        <img alt="{{issue.fields.issuetype.name}}" title="{{issue.fields.issuetype.name}}"
-                            src="{{issue.fields.issuetype.iconUrl}}" />
-                        {{/if}}
-                        {{#if (settings.renderKey, issue.key)}}
-                        <span>{{issue.key}}</span>
-                        {{/if}}
-                    </a>
-                    {{#if (settings.renderSummary, issue.fields.summary)}}
-                    <span>-</span>
-                    <span>{{issue.fields.summary}}</span>
+        <details class="jira-issue">
+            <summary class="flex-center">
+                <a href="{{jiraHost}}/browse/{{issue.key}}" class="flex-center">
+                    {{#if (settings.renderTypeIcon, issue.fields.issuetype.iconUrl)}}
+                    <img alt="{{issue.fields.issuetype.name}}" title="{{issue.fields.issuetype.name}}"
+                        src="{{issue.fields.issuetype.iconUrl}}" />
                     {{/if}}
-                    {{#if (settings.renderStatus, issue.fields.status.name)}}
-                    <span class="tag uppercase tag-{{statusColor}}" title="Status: {{issue.fields.status.name}}">{{issue.fields.status.name}}</span>
+                    {{#if (settings.renderKey, issue.key)}}
+                    <span>{{issue.key}}</span>
                     {{/if}}
-                </summary>
-                <div class="flex-center">
-                    {{#if (settings.renderPriority, issue.fields.priority.name)}}
-                    <span class="tag tag-grey" title="Priority: {{issue.fields.priority.name}}">P:
-                        {{issue.fields.priority.name}}</span>
-                    {{/if}}
-                    {{#if (settings.renderCreator, issue.fields.creator.displayName)}}
-                    <span class="tag tag-grey" title="Creator: {{issue.fields.creator.displayName}}">C:
-                        {{issue.fields.creator.displayName}}</span>
-                    {{/if}}
-                    {{#if (settings.renderAssignee, issue.fields.assignee.displayName)}}
-                    <span class="tag tag-grey" title="Assignee: {{issue.fields.assignee.displayName}}">A:
-                        {{issue.fields.assignee.displayName}}</span>
-                    {{/if}}
-                    {{#if (settings.renderReporter, issue.fields.reporter.displayName)}}
-                    <span class="tag tag-grey" title="Reporter: {{issue.fields.reporter.displayName}}">R:
-                        {{issue.fields.reporter.displayName}}</span>
-                    {{/if}}
-                    {{#if (settings.renderType, issue.fields.issuetype.name)}}
-                    <span class="tag tag-grey" title="Type: {{issue.fields.issuetype.name}}">T:
-                        {{issue.fields.issuetype.name}}</span>
-                    {{/if}}
-                    {{#if (settings.renderProgress, progress)}}
-                    <span class="tag tag-grey" title="Progress: {{progress}}">%: {{progress}}</span>
-                    {{/if}}
-                    {{#if (settings.renderDueDate, issueJson.fields.duedate)}}
-                    <span class="tag tag-grey" title="Due date: {{issueJson.fields.duedate}}">DD:
-                        {{issueJson.fields.duedate}}</span>
-                    {{/if}}
-                </div>
-            </details>
-        </div>
-        `
+                </a>
+                {{#if (settings.renderSummary, issue.fields.summary)}}
+                <span>-</span>
+                <span>{{issue.fields.summary}}</span>
+                {{/if}}
+                {{#if (settings.renderStatus, issue.fields.status.name)}}
+                <span class="tag uppercase tag-{{statusColor}}" title="Status: {{issue.fields.status.name}}">{{issue.fields.status.name}}</span>
+                {{/if}}
+            </summary>
+            <div class="flex-center">
+                {{#if (settings.renderPriority, issue.fields.priority.name)}}
+                <span class="tag tag-grey" title="Priority: {{issue.fields.priority.name}}">P:
+                    {{issue.fields.priority.name}}</span>
+                {{/if}}
+                {{#if (settings.renderCreator, issue.fields.creator.displayName)}}
+                <span class="tag tag-grey" title="Creator: {{issue.fields.creator.displayName}}">C:
+                    {{issue.fields.creator.displayName}}</span>
+                {{/if}}
+                {{#if (settings.renderAssignee, issue.fields.assignee.displayName)}}
+                <span class="tag tag-grey" title="Assignee: {{issue.fields.assignee.displayName}}">A:
+                    {{issue.fields.assignee.displayName}}</span>
+                {{/if}}
+                {{#if (settings.renderReporter, issue.fields.reporter.displayName)}}
+                <span class="tag tag-grey" title="Reporter: {{issue.fields.reporter.displayName}}">R:
+                    {{issue.fields.reporter.displayName}}</span>
+                {{/if}}
+                {{#if (settings.renderType, issue.fields.issuetype.name)}}
+                <span class="tag tag-grey" title="Type: {{issue.fields.issuetype.name}}">T:
+                    {{issue.fields.issuetype.name}}</span>
+                {{/if}}
+                {{#if (settings.renderProgress, progress)}}
+                <span class="tag tag-grey" title="Progress: {{progress}}">%: {{progress}}</span>
+                {{/if}}
+                {{#if (settings.renderDueDate, issueJson.fields.duedate)}}
+                <span class="tag tag-grey" title="Due date: {{issueJson.fields.duedate}}">DD:
+                    {{issueJson.fields.duedate}}</span>
+                {{/if}}
+            </div>
+        </details>
+        `,
+
+    error: `
+        <details class="jira-issue">
+            <summary class="flex-center">
+                <span class="error-circle">X</span>
+                <span>Error</span>
+                <span>:</span>
+                <span>{{error}}</span>
+            </summary>
+            <div class="flex-center">
+                <span><strong>Issue:</strong> {{issue}}</span>
+            </div>
+        </details>
+    `,
 }
