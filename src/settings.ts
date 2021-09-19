@@ -1,6 +1,6 @@
-import joplin from 'api';
-import { ChangeEvent } from 'api/JoplinSettings';
-import { SettingItem, SettingItemType } from 'api/types';
+import joplin from 'api'
+import { ChangeEvent } from 'api/JoplinSettings'
+import { SettingItem, SettingItemType } from 'api/types'
 const ms = require('ms')
 
 enum SettingDefaults {
@@ -16,7 +16,7 @@ interface SettingsConfig {
 }
 
 export class Settings {
-    private _statusColorsCache: any = {};
+    private _statusColorsCache: any = {}
 
     // Settings definitions
     private _config: SettingsConfig = {
@@ -234,17 +234,17 @@ export class Settings {
     }
 
     addStatusColor(status: string, jiraColor: string): void {
-        this._statusColorsCache[status] = jiraColor;
+        this._statusColorsCache[status] = jiraColor
     }
 
     isStatusColorCached(status: string): boolean {
-        return status in this._statusColorsCache;
+        return status in this._statusColorsCache
     }
 
     getStatusColor(status: string): string {
-        if (status in this._statusColorsCache) {
-            return this._statusColorsCache[status];
+        if (this.isStatusColorCached(status)) {
+            return this._statusColorsCache[status]
         }
-        return SettingDefaults.StatusColor;
+        return SettingDefaults.StatusColor
     }
 }

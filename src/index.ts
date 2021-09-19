@@ -222,7 +222,7 @@ joplin.plugins.register({
         await joplin.contentScripts.onMessage(Config.MarkdownFenceId, async (message: string) => {
             console.log("Message:", message)
 
-            const issues = message.split(';')
+            const issues = message.split('\n')
             let outputHtml = ''
             for (let i in issues) {
                 try {

@@ -1,5 +1,12 @@
 import * as MarkdownIt from "markdown-it"
-const tokenName = "jira"
+const issueTokenName = "jira-issue"
+const searchTokenName = "jira-search"
+
+function escapeHTML(str) {
+    var p = document.createElement("p");
+    p.appendChild(document.createTextNode(str));
+    return p.innerHTML;
+}
 
 export default function (context) {
     return {
@@ -16,17 +23,17 @@ export default function (context) {
             markdownIt.renderer.rules.fence = function (tokens, idx, options, env, self) {
                 console.log(`Jira-Issue[${renderIndex}] render markdown-it plugin`)
                 const token = tokens[idx]
-                if (token.info !== tokenName) return defaultRender(tokens, idx, options, env, self)
+                if (token.info !== issueTokenName && token.info !== searchTokenName) return defaultRender(tokens, idx, options, env, self)
 
                 renderIndex++
-                const content = token.content.trim().replace(/\n/g, ';').replace(/'/g, "\\'").replace(/"/g, '\\"')
+                const content = JSON.stringify(token.content)
 
                 const sendContentToJoplinPlugin = `
-                    console.log('Jira-Issue[${renderIndex}] send content:', '${content}');
-                    webviewApi.postMessage('${contentScriptId}', '${content}').then((response) => {
+                    console.log('Jira-Issue[${renderIndex}] send content:', ${content});
+                    webviewApi.postMessage('${contentScriptId}', ${content}).then((response) => {
                         document.getElementById('jira-issue-root-${renderIndex}').innerHTML = response;
                     });
-                `.replace(/\n/g, ' ')
+                `.replace(/"/g, '&quot;')
 
                 return `
                 <div id="jira-issue-root-${renderIndex}" class="jira-container">
