@@ -27,10 +27,10 @@ export class JiraClient {
     }
 
     async getIssue(issue: string): Promise<any> {
-        const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/issue/' + issue);
+        const url: URL = new URL(this._settings.get('jiraHost') + this._settings.apiBasePath + '/issue/' + issue);
         const requestHeaders: HeadersInit = new Headers;
-        if (this._settings.username) {
-            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        if (this._settings.get('username')) {
+            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')));
         }
         const options: RequestInit = {
             method: 'GET',
@@ -69,10 +69,10 @@ export class JiraClient {
     }
 
     async getSearchResults(query: string, max: number): Promise<any> {
-        const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/search');
+        const url: URL = new URL(this._settings.get('jiraHost') + this._settings.apiBasePath + '/search');
         const requestHeaders: HeadersInit = new Headers;
-        if (this._settings.username) {
-            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        if (this._settings.get('username')) {
+            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')));
         }
         const queryParameters = new URLSearchParams({
             jql: query,
@@ -123,10 +123,10 @@ export class JiraClient {
         }
 
         // Request the status color using the API
-        const url: URL = new URL(this._settings.jiraHost + this._settings.apiBasePath + '/status/' + status);
+        const url: URL = new URL(this._settings.get('jiraHost') + this._settings.apiBasePath + '/status/' + status);
         const requestHeaders: HeadersInit = new Headers;
-        if (this._settings.username) {
-            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.username + ':' + this._settings.password));
+        if (this._settings.get('username')) {
+            requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')));
         }
         const options: RequestInit = {
             method: 'GET',

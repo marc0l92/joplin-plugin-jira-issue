@@ -208,7 +208,7 @@ joplin.plugins.register({
         function extractIssueKey(fenceLine: string) {
             // Remove comments
             fenceLine = fenceLine.replace(/\s*#.*$/, '')
-            fenceLine = fenceLine.replace(settings.jiraHost + '/browse/', '')
+            fenceLine = fenceLine.replace(settings.get('jiraHost') + '/browse/', '')
             return fenceLine.trim()
         }
 

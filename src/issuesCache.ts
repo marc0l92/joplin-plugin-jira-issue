@@ -25,7 +25,7 @@ export class IssuesCache {
     }
 
     getCachedIssue(key: string) {
-        if (key in this._cache && this._cache[key].updateTime + ms(this._settings.cacheTime) > Date.now()) {
+        if (key in this._cache && this._cache[key].updateTime + ms(this._settings.get('cacheTime')) > Date.now()) {
             return this._cache[key].data
         }
         return undefined

@@ -8,109 +8,109 @@ export class View {
         this._settings = settings
     }
 
-    private async renderTableHeader(): Promise<string> {
-        let columns: number = 0;
-        let out: string = '';
+    // private async renderTableHeader(): Promise<string> {
+    //     let columns: number = 0;
+    //     let out: string = '';
 
-        // Output string
-        if (this._settings.renderKey) {
-            out += ' Key |';
-            columns++;
-        }
-        if (this._settings.renderStatus) {
-            out += ' Status |';
-            columns++;
-        }
-        if (this._settings.renderSummary) {
-            out += ' Summary |';
-            columns++;
-        }
-        if (this._settings.renderDueDate) {
-            out += ' Due Date |';
-            columns++;
-        }
-        if (this._settings.renderProgress) {
-            out += ' Progress |';
-            columns++;
-        }
-        if (this._settings.renderPriority || this._settings.renderCreator || this._settings.renderAssignee || this._settings.renderReporter || this._settings.renderType) {
-            out += ' Properties |';
-            columns++;
-        }
-        if (columns > 0) {
-            out = '|' + out + '\n|';
-            for (let i = 0; i < columns; i++) {
-                out += ' :--- |';
-            }
-            out += '\n';
-        }
-        return out;
-    }
+    //     // Output string
+    //     if (this._settings.renderKey) {
+    //         out += ' Key |';
+    //         columns++;
+    //     }
+    //     if (this._settings.renderStatus) {
+    //         out += ' Status |';
+    //         columns++;
+    //     }
+    //     if (this._settings.renderSummary) {
+    //         out += ' Summary |';
+    //         columns++;
+    //     }
+    //     if (this._settings.renderDueDate) {
+    //         out += ' Due Date |';
+    //         columns++;
+    //     }
+    //     if (this._settings.renderProgress) {
+    //         out += ' Progress |';
+    //         columns++;
+    //     }
+    //     if (this._settings.renderPriority || this._settings.renderCreator || this._settings.renderAssignee || this._settings.renderReporter || this._settings.renderType) {
+    //         out += ' Properties |';
+    //         columns++;
+    //     }
+    //     if (columns > 0) {
+    //         out = '|' + out + '\n|';
+    //         for (let i = 0; i < columns; i++) {
+    //             out += ' :--- |';
+    //         }
+    //         out += '\n';
+    //     }
+    //     return out;
+    // }
 
-    private async renderIssueAsTableRow(issueJson: any): Promise<string> {
-        // Properties
-        let props: string[] = [];
-        if (this._settings.renderPriority) {
-            props.push(`P: ${issueJson.fields.priority.name}`);
-        }
-        if (this._settings.renderCreator) {
-            props.push(`C: ${issueJson.fields.creator.displayName}`);
-        }
-        if (this._settings.renderAssignee) {
-            if (issueJson.fields.assignee) {
-                props.push(`A: ${issueJson.fields.assignee.displayName}`);
-            }
-        }
-        if (this._settings.renderReporter) {
-            props.push(`R: ${issueJson.fields.reporter.displayName}`);
-        }
-        if (this._settings.renderType) {
-            props.push(`T: ${issueJson.fields.issuetype.name}`);
-        }
+    // private async renderIssueAsTableRow(issueJson: any): Promise<string> {
+    //     // Properties
+    //     let props: string[] = [];
+    //     if (this._settings.renderPriority) {
+    //         props.push(`P: ${issueJson.fields.priority.name}`);
+    //     }
+    //     if (this._settings.renderCreator) {
+    //         props.push(`C: ${issueJson.fields.creator.displayName}`);
+    //     }
+    //     if (this._settings.renderAssignee) {
+    //         if (issueJson.fields.assignee) {
+    //             props.push(`A: ${issueJson.fields.assignee.displayName}`);
+    //         }
+    //     }
+    //     if (this._settings.renderReporter) {
+    //         props.push(`R: ${issueJson.fields.reporter.displayName}`);
+    //     }
+    //     if (this._settings.renderType) {
+    //         props.push(`T: ${issueJson.fields.issuetype.name}`);
+    //     }
 
-        // Output string
-        let out: string = '|';
-        if (this._settings.renderKey) {
-            if (this._settings.renderTypeIcon) {
-                out += ` ![${issueJson.fields.issuetype.name}](${issueJson.fields.issuetype.iconUrl})`;
-            } else {
-                out += ' ';
-            }
-            out += `[${issueJson.key}](${this._settings.jiraHost}/browse/${issueJson.key}) |`;
-        }
-        if (this._settings.renderStatus) {
-            out += ` \`${issueJson.fields.status.name}\` |`;
-        }
-        if (this._settings.renderSummary) {
-            out += ` ${issueJson.fields.summary} |`;
-        }
-        if (this._settings.renderDueDate) {
-            if (issueJson.fields.duedate) {
-                out += ` ${issueJson.fields.duedate}`;
-            }
-            out += ` |`;
-        }
-        if (this._settings.renderProgress) {
-            if (issueJson.fields.aggregateprogress.percent) {
-                out += ` [${issueJson.fields.aggregateprogress.percent}%] |`;
-            } else if (issueJson.fields.aggregateprogress.total > 0) {
-                out += ` [${issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100}] |`;
-            } else {
-                out += ` | `;
-            }
-        }
-        if (props.length > 0) {
-            out += ' ' + props.join('; ') + ' |';
-        }
-        return out;
-    }
+    //     // Output string
+    //     let out: string = '|';
+    //     if (this._settings.renderKey) {
+    //         if (this._settings.renderTypeIcon) {
+    //             out += ` ![${issueJson.fields.issuetype.name}](${issueJson.fields.issuetype.iconUrl})`;
+    //         } else {
+    //             out += ' ';
+    //         }
+    //         out += `[${issueJson.key}](${this._settings.jiraHost}/browse/${issueJson.key}) |`;
+    //     }
+    //     if (this._settings.renderStatus) {
+    //         out += ` \`${issueJson.fields.status.name}\` |`;
+    //     }
+    //     if (this._settings.renderSummary) {
+    //         out += ` ${issueJson.fields.summary} |`;
+    //     }
+    //     if (this._settings.renderDueDate) {
+    //         if (issueJson.fields.duedate) {
+    //             out += ` ${issueJson.fields.duedate}`;
+    //         }
+    //         out += ` |`;
+    //     }
+    //     if (this._settings.renderProgress) {
+    //         if (issueJson.fields.aggregateprogress.percent) {
+    //             out += ` [${issueJson.fields.aggregateprogress.percent}%] |`;
+    //         } else if (issueJson.fields.aggregateprogress.total > 0) {
+    //             out += ` [${issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100}] |`;
+    //         } else {
+    //             out += ` | `;
+    //         }
+    //     }
+    //     if (props.length > 0) {
+    //         out += ' ' + props.join('; ') + ' |';
+    //     }
+    //     return out;
+    // }
 
     async renderIssue(issueJson: any): Promise<string> {
         console.log('renderIssue', issueJson, this._settings)
         const template = Templater(Templates.issue)
 
         let progress
-        if (this._settings.renderProgress) {
+        if (this._settings.get('renderProgress')) {
             if (issueJson.fields.aggregateprogress.percent) {
                 progress = issueJson.fields.aggregateprogress.percent
             } else if (issueJson.fields.aggregateprogress.total > 0) {
@@ -119,11 +119,10 @@ export class View {
         }
 
         return template({
-            settings: this._settings,
+            settings: this._settings.toObject(),
             issue: issueJson,
-            statusColor: this._settings.renderStatus ? await this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
+            statusColor: this._settings.get('renderStatus') ? await this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
             progress: progress,
-            jiraHost: this._settings.jiraHost, // TODO: why I need to extract it to make it work?
         })
     }
 
