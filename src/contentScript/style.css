@@ -29,6 +29,10 @@
     margin: 2px 0;
 }
 
+.jira-container .jira-issue>div {
+    margin-top: 3px;
+}
+
 .jira-container a {
     text-decoration: none;
 }
@@ -43,7 +47,6 @@
     font-size: 11px;
     font-weight: bold;
     text-align: center;
-    /* text-transform: uppercase; */
     border-radius: 3px;
     padding: 2px 5px;
     border: 1px solid #333;
@@ -69,19 +72,37 @@
     padding: 2px 5px 2px 1px;
 } */
 
-.jira-container .tag.tag-blue.outline {
-    background-color: #fff;
-    border-color: #b3d4ff;
-    color: #0052cc;
-}
-
-.jira-container .tag.tag-grey.outline {
+.jira-container .tag.tag-medium-gray.outline {
     background-color: #fff;
     border-color: #c1c7d0;
     color: #42526e;
 }
 
-.jira-container .tag.tag-grey {
+.jira-container .tag.tag-blue-gray {
+    background-color: #b3d4ff;
+    border-color: #b3d4ff;
+    color: #0052cc;
+}
+
+.jira-container .tag.tag-yellow {
+    background-color: #ffab00;
+    border-color: #ffab00;
+    color: #253858;
+}
+
+.jira-container .tag.tag-green {
+    background-color: #00875a;
+    border-color: #00875a;
+    color: #fff;
+}
+
+.jira-container .tag.tag-red {
+    background-color: #de350b;
+    border-color: #de350b;
+    color: #fff;
+}
+
+.jira-container .tag.tag-medium-gray {
     background-color: #dfe1e6;
     border-color: #dfe1e6;
     color: #253858;
@@ -127,4 +148,4 @@
     color: white;
     font-size: 1.1em;
     text-align: center;
-  }
+}

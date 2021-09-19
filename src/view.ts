@@ -161,30 +161,30 @@ const Templates = {
             </summary>
             <div class="flex-center">
                 {{#if (settings.renderPriority, issue.fields.priority.name)}}
-                <span class="tag tag-grey" title="Priority: {{issue.fields.priority.name}}">P:
+                <span class="tag tag-medium-gray outline" title="Priority: {{issue.fields.priority.name}}">P:
                     {{issue.fields.priority.name}}</span>
                 {{/if}}
                 {{#if (settings.renderCreator, issue.fields.creator.displayName)}}
-                <span class="tag tag-grey" title="Creator: {{issue.fields.creator.displayName}}">C:
+                <span class="tag tag-medium-gray outline" title="Creator: {{issue.fields.creator.displayName}}">C:
                     {{issue.fields.creator.displayName}}</span>
                 {{/if}}
                 {{#if (settings.renderAssignee, issue.fields.assignee.displayName)}}
-                <span class="tag tag-grey" title="Assignee: {{issue.fields.assignee.displayName}}">A:
+                <span class="tag tag-medium-gray outline" title="Assignee: {{issue.fields.assignee.displayName}}">A:
                     {{issue.fields.assignee.displayName}}</span>
                 {{/if}}
                 {{#if (settings.renderReporter, issue.fields.reporter.displayName)}}
-                <span class="tag tag-grey" title="Reporter: {{issue.fields.reporter.displayName}}">R:
+                <span class="tag tag-medium-gray outline" title="Reporter: {{issue.fields.reporter.displayName}}">R:
                     {{issue.fields.reporter.displayName}}</span>
                 {{/if}}
                 {{#if (settings.renderType, issue.fields.issuetype.name)}}
-                <span class="tag tag-grey" title="Type: {{issue.fields.issuetype.name}}">T:
+                <span class="tag tag-medium-gray outline" title="Type: {{issue.fields.issuetype.name}}">T:
                     {{issue.fields.issuetype.name}}</span>
                 {{/if}}
                 {{#if (settings.renderProgress, progress)}}
-                <span class="tag tag-grey" title="Progress: {{progress}}">%: {{progress}}</span>
+                <span class="tag tag-medium-gray outline" title="Progress: {{progress}}">%: {{progress}}</span>
                 {{/if}}
                 {{#if (settings.renderDueDate, issueJson.fields.duedate)}}
-                <span class="tag tag-grey" title="Due date: {{issueJson.fields.duedate}}">DD:
+                <span class="tag tag-medium-gray outline" title="Due date: {{issueJson.fields.duedate}}">DD:
                     {{issueJson.fields.duedate}}</span>
                 {{/if}}
             </div>

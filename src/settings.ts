@@ -7,15 +7,8 @@ enum SettingDefaults {
     JiraHost = 'https://jira.secondlife.com',
     ApiBasePath = '/rest/api/latest',
     AutoRefreshTime = '15m',
+    StatusColor = 'medium-gray',
 }
-
-const JiraToBadgeColorsMap: any = {
-    'default': 'lightgrey',
-    'blue-gray': 'blue',
-    'yellow': 'yellow',
-    'green': 'green',
-    'medium-gray': 'lightgrey',
-};
 
 export class Settings {
     private _statusColorsCache: any = {};
@@ -316,8 +309,8 @@ export class Settings {
 
     getStatusColor(status: string): string {
         if (status in this._statusColorsCache) {
-            return JiraToBadgeColorsMap[this._statusColorsCache[status]];
+            return this._statusColorsCache[status];
         }
-        return JiraToBadgeColorsMap['default'];
+        return SettingDefaults.StatusColor;
     }
 }

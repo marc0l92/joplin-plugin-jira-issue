@@ -116,7 +116,7 @@ export class JiraClient {
         }
     }
 
-    async updateStatusColorCache(status: any): Promise<void> {
+    async updateStatusColorCache(status: string): Promise<void> {
         // Check cached status
         if (this._settings.isStatusColorCached(status)) {
             return;

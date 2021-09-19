@@ -1,4 +1,3 @@
-// import MarkdownIt = require("markdown-it")
 import * as MarkdownIt from "markdown-it"
 const tokenName = "jira"
 
