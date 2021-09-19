@@ -5,6 +5,7 @@ import { MenuItem, MenuItemLocation } from 'api/types'
 import { JiraClient } from "./jiraClient"
 import { Settings } from "./settings"
 import { View } from "./view"
+import { IssuesCache } from './issuesCache'
 
 
 enum Config {
@@ -32,6 +33,7 @@ joplin.plugins.register({
     onStart: async function () {
         const settings = new Settings()
         const jiraClient = new JiraClient(settings)
+        const cache = new IssuesCache(settings)
         const view = new View(settings)
 
         // function unpackAttributes(attributesStr: string): any {
@@ -204,7 +206,10 @@ joplin.plugins.register({
 
 
         function extractIssueKey(fenceLine: string) {
-            return fenceLine
+            // Remove comments
+            fenceLine = fenceLine.replace(/\s*#.*$/, '')
+            fenceLine = fenceLine.replace(settings.jiraHost + '/browse/', '')
+            return fenceLine.trim()
         }
 
 
@@ -220,16 +225,23 @@ joplin.plugins.register({
             const issues = message.split(';')
             let outputHtml = ''
             for (let i in issues) {
-                const issueKey = extractIssueKey(issues[i])
-                if (issueKey) {
-                    console.log('Detected issue:', issueKey)
-                    try {
-                        const issue = await jiraClient.getIssue(issueKey)
-                        await jiraClient.updateStatusColorCache(issue.fields.status.name)
-                        outputHtml += await view.renderIssue(issue)
-                    } catch (err) {
-                        outputHtml += await view.renderError(issueKey, err)
+                try {
+                    const issueKey = extractIssueKey(issues[i])
+                    if (issueKey) {
+                        console.log('Detected issue:', issueKey)
+
+                        const cachedIssue = cache.getCachedIssue(issueKey)
+                        if (cachedIssue) {
+                            outputHtml += await view.renderIssue(cachedIssue)
+                        } else {
+                            const newIssue = await jiraClient.getIssue(issueKey)
+                            await jiraClient.updateStatusColorCache(newIssue.fields.status.name)
+                            cache.addCachedIssue(issueKey, newIssue)
+                            outputHtml += await view.renderIssue(newIssue)
+                        }
                     }
+                } catch (err) {
+                    outputHtml += await view.renderError(issues[i], err)
                 }
             }
             return outputHtml

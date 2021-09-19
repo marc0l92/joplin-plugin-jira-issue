@@ -7,17 +7,21 @@
     flex-direction: column;
 }
 
-.flex-center {
+.jira-container summary:focus {
+    outline: none;
+}
+
+.jira-container .flex-center {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.flex-center>* {
+.jira-container .flex-center>* {
     margin-right: 5px;
 }
 
-.flex-center>*:last-child {
+.jira-container .flex-center>*:last-child {
     margin-right: 0;
 }
 
@@ -55,22 +59,6 @@
 .jira-container .uppercase {
     text-transform: uppercase;
 }
-
-/* .jira-container .tag-container .tag {
-    border-width: 1px 0;
-    border-radius: 0;
-    padding: 2px 1px;
-}
-.jira-container .tag-container > .tag:first-child {
-    border-width: 1px 0px 1px 1px;
-    border-radius: 3px 0px 0px 3px;
-    padding: 2px 1px 2px 5px;
-}
-.jira-container .tag-container > .tag:last-child {
-    border-width: 1px 1px 1px 0px;
-    border-radius: 0px 3px 3px 0px;
-    padding: 2px 5px 2px 1px;
-} */
 
 .jira-container .tag.tag-medium-gray.outline {
     background-color: #fff;
@@ -110,13 +98,13 @@
 
 /* Spinner */
 
-.lds-dual-ring {
+.jira-container .lds-dual-ring {
     display: inline-block;
     width: 1.1em;
     height: 1.1em;
 }
 
-.lds-dual-ring:after {
+.jira-container .lds-dual-ring:after {
     content: " ";
     display: block;
     width: 80%;
@@ -138,7 +126,7 @@
 
 /* Icons */
 
-.error-circle {
+.jira-container .error-circle {
     width: 1.1em;
     height: 1.1em;
     line-height: 1.1em;

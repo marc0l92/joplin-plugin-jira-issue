@@ -6,7 +6,7 @@ enum SettingDefaults {
     Default = 'default',
     JiraHost = 'https://jira.secondlife.com',
     ApiBasePath = '/rest/api/latest',
-    AutoRefreshTime = '15m',
+    CacheTime = '15m',
     StatusColor = 'medium-gray',
 }
 
@@ -17,8 +17,7 @@ export class Settings {
     private _username: string;
     private _password: string;
 
-    private _autoRefreshEnabled: boolean;
-    private _autoRefreshTime: string;
+    private _cacheTime: string = SettingDefaults.CacheTime;
 
     private _renderKey: boolean = true;
     private _renderPriority: boolean = false;
@@ -32,16 +31,13 @@ export class Settings {
     private _renderTypeIcon: boolean = true;
     private _renderSummary: boolean = true;
 
-    private _issueRenderingMode: string = 'BADGE';
-    private _searchRenderingMode: string = 'TABLE';
     private _searchTemplateQuery: string = 'resolution = Unresolved AND assignee = currentUser() AND status = \'In Progress\' order by priority DESC';
 
     get jiraHost(): string { return this._jiraHost; }
     get apiBasePath(): string { return SettingDefaults.ApiBasePath; }
     get username(): string { return this._username; }
     get password(): string { return this._password; }
-    get autoRefreshEnabled(): boolean { return this._autoRefreshEnabled; }
-    get autoRefreshTime(): string { return this._autoRefreshTime; }
+    get cacheTime(): string { return this._cacheTime; }
     get renderKey(): boolean { return this._renderKey; }
     get renderPriority(): boolean { return this._renderPriority; }
     get renderDueDate(): boolean { return this._renderDueDate; }
@@ -53,8 +49,6 @@ export class Settings {
     get renderType(): boolean { return this._renderType; }
     get renderTypeIcon(): boolean { return this._renderTypeIcon; }
     get renderSummary(): boolean { return this._renderSummary; }
-    get issueRenderingMode(): string { return this._issueRenderingMode; }
-    get searchRenderingMode(): string { return this._searchRenderingMode; }
     get searchTemplateQuery(): string { return this._searchTemplateQuery; }
 
     async register() {
@@ -95,24 +89,15 @@ export class Settings {
                 description: 'Password of your jira account used to access the API using basic authentication.'
             },
 
-            // AutoRefresh
-            ['autoRefreshEnabled']: {
-                value: this._autoRefreshEnabled,
-                type: SettingItemType.Bool,
-                section: 'jiraIssue.settings',
-                public: true,
-                advanced: false,
-                label: 'AutoRefresh: enabled',
-                description: 'Enable issues periodic auto refresh'
-            },
-            ['autoRefreshTime']: {
-                value: this._autoRefreshTime,
+            // Cache
+            ['cacheTime']: {
+                value: this._cacheTime,
                 type: SettingItemType.String,
                 section: 'jiraIssue.settings',
                 public: true,
                 advanced: false,
-                label: 'AutoRefresh: time',
-                description: 'Time between each auto refresh in minutes'
+                label: 'Cache: time',
+                description: 'Time before the cached issue status expires. A low value will refresh the data very often but do a lot of request to the server. E.g. "15m", "24h", "5s"'
             },
 
             // Render
@@ -216,30 +201,6 @@ export class Settings {
                 description: 'Render the field $.fields.summary'
             },
 
-            // Mode
-            ['issueRenderingMode']: {
-                value: this._issueRenderingMode,
-                type: SettingItemType.String,
-                isEnum: true,
-                options: { TEXT: "Text", BADGES: "Badges" },
-                section: 'jiraIssue.settings',
-                public: true,
-                advanced: false,
-                label: 'Mode: JiraIssues rendering mode',
-                description: 'Rendering method of JiraIssues'
-            },
-            ['searchRenderingMode']: {
-                value: this._searchRenderingMode,
-                type: SettingItemType.String,
-                isEnum: true,
-                options: { TEXT: "Text", BADGES: "Badges", TABLE: "Table" },
-                section: 'jiraIssue.settings',
-                public: true,
-                advanced: false,
-                label: 'Mode: JiraSearch rendering mode',
-                description: 'Rendering method of JiraSearch'
-            },
-
             // Template
             ['searchTemplateQuery']: {
                 value: this._searchTemplateQuery,
@@ -258,45 +219,39 @@ export class Settings {
 
     private async getOrDefault(event: ChangeEvent, localVar: any, setting: string): Promise<any> {
         if (!event || event.keys.includes(setting)) {
-            return await joplin.settings.value(setting);
+            return await joplin.settings.value(setting)
         }
         return localVar;
     }
 
-    private fixUriEnd(uri: string) {
-        if (uri.charAt(uri.length - 1) === '/') {
-            return uri.slice(0, uri.length - 1);
-        }
-        return uri;
+    private checkHost(host: string) {
+        const fixedHost = host.replace(/\/$/, '')
+        joplin.settings.setValue('jiraHost', fixedHost)
+        return fixedHost
     }
 
     async read(event?: ChangeEvent) {
-        this._statusColorsCache = {}; // Reset status color cache
+        this._statusColorsCache = {} // Reset status color cache
         // Connection
-        this._jiraHost = await this.getOrDefault(event, this._jiraHost, 'jiraHost');
-        this._jiraHost = this.fixUriEnd(this._jiraHost);
-        this._username = await this.getOrDefault(event, this._username, 'username');
-        this._password = await this.getOrDefault(event, this._password, 'password');
+        this._jiraHost = this.checkHost(await this.getOrDefault(event, this._jiraHost, 'jiraHost'))
+        this._username = await this.getOrDefault(event, this._username, 'username')
+        this._password = await this.getOrDefault(event, this._password, 'password')
         // AutoRefresh
-        this._autoRefreshEnabled = await this.getOrDefault(event, this._autoRefreshEnabled, 'autoRefreshEnabled');
-        this._autoRefreshTime = await this.getOrDefault(event, this._autoRefreshTime, 'autoRefreshTime');
+        this._cacheTime = await this.getOrDefault(event, this._cacheTime, 'cacheTime')
         // Render
-        this._renderKey = await this.getOrDefault(event, this._renderKey, 'renderKey');
-        this._renderPriority = await this.getOrDefault(event, this._renderPriority, 'renderPriority');
-        this._renderDueDate = await this.getOrDefault(event, this._renderDueDate, 'renderDueDate');
-        this._renderStatus = await this.getOrDefault(event, this._renderStatus, 'renderStatus');
-        this._renderCreator = await this.getOrDefault(event, this._renderCreator, 'renderCreator');
-        this._renderAssignee = await this.getOrDefault(event, this._renderAssignee, 'renderAssignee');
-        this._renderReporter = await this.getOrDefault(event, this._renderReporter, 'renderReporter');
-        this._renderProgress = await this.getOrDefault(event, this._renderProgress, 'renderProgress');
-        this._renderType = await this.getOrDefault(event, this._renderType, 'renderType');
-        this._renderTypeIcon = await this.getOrDefault(event, this._renderTypeIcon, 'renderTypeIcon');
-        this._renderSummary = await this.getOrDefault(event, this._renderSummary, 'renderSummary');
-        // Mode
-        this._issueRenderingMode = await this.getOrDefault(event, this._issueRenderingMode, 'issueRenderingMode');
-        this._searchRenderingMode = await this.getOrDefault(event, this._searchRenderingMode, 'searchRenderingMode');
+        this._renderKey = await this.getOrDefault(event, this._renderKey, 'renderKey')
+        this._renderPriority = await this.getOrDefault(event, this._renderPriority, 'renderPriority')
+        this._renderDueDate = await this.getOrDefault(event, this._renderDueDate, 'renderDueDate')
+        this._renderStatus = await this.getOrDefault(event, this._renderStatus, 'renderStatus')
+        this._renderCreator = await this.getOrDefault(event, this._renderCreator, 'renderCreator')
+        this._renderAssignee = await this.getOrDefault(event, this._renderAssignee, 'renderAssignee')
+        this._renderReporter = await this.getOrDefault(event, this._renderReporter, 'renderReporter')
+        this._renderProgress = await this.getOrDefault(event, this._renderProgress, 'renderProgress')
+        this._renderType = await this.getOrDefault(event, this._renderType, 'renderType')
+        this._renderTypeIcon = await this.getOrDefault(event, this._renderTypeIcon, 'renderTypeIcon')
+        this._renderSummary = await this.getOrDefault(event, this._renderSummary, 'renderSummary')
         // Template
-        this._searchTemplateQuery = await this.getOrDefault(event, this._searchTemplateQuery, 'searchTemplateQuery');
+        this._searchTemplateQuery = await this.getOrDefault(event, this._searchTemplateQuery, 'searchTemplateQuery')
     }
 
     addStatusColor(status: string, jiraColor: string): void {

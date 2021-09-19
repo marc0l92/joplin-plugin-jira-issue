@@ -49,7 +49,7 @@ export class JiraClient {
         }
 
         if (response.status === 200) {
-            // console.info(response);
+            // console.info('response', response);
             try {
                 return response.json();
             } catch (e) {
@@ -97,7 +97,7 @@ export class JiraClient {
         }
 
         if (response.status === 200) {
-            // console.info(response);
+            // console.info('response', response);
             try {
                 return response.json();
             } catch (e) {
@@ -145,7 +145,7 @@ export class JiraClient {
         }
 
         if (response.status === 200) {
-            // console.info(response);
+            // console.info('response', response);
             try {
                 const responseJson = await response.json();
                 this._settings.addStatusColor(status, responseJson.statusCategory.colorName);
