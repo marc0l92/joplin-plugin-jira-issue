@@ -8,7 +8,8 @@
   },
   "license": "MIT",
   "keywords": [
-    "joplin-plugin"
+    "joplin-plugin",
+    "jira"
   ],
   "devDependencies": {
     "@types/markdown-it": "^12.2.1",

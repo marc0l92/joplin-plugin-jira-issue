@@ -5,11 +5,13 @@
     line-height: normal;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .jira-container img {
     width: 16px;
     height: 16px;
+    max-width: none;
 }
 
 .jira-container summary:focus {
@@ -29,6 +31,8 @@
 .jira-container .flex-center>*:last-child {
     margin-right: 0;
 }
+
+/* Issue */
 
 .jira-container .jira-issue {
     width: fit-content;
@@ -52,6 +56,14 @@
 
 .jira-container .no-text-wrap {
     white-space: nowrap;
+}
+
+/* Search */
+
+.jira-container .jira-search {
+    overflow-x: auto;
+    width: 95vw;
+    margin-left: -20vw;
 }
 
 /* Tags */
