@@ -7,6 +7,11 @@
     flex-direction: column;
 }
 
+.jira-container img {
+    width: 16px;
+    height: 16px;
+}
+
 .jira-container summary:focus {
     outline: none;
 }
@@ -43,6 +48,10 @@
 
 .jira-container a:hover {
     text-decoration: underline;
+}
+
+.jira-container .no-text-wrap {
+    white-space: nowrap;
 }
 
 /* Tags */
@@ -136,4 +145,44 @@
     color: white;
     font-size: 1.1em;
     text-align: center;
+}
+
+/* Table */
+
+.jira-container table {
+    border-collapse: collapse;
+    width: 100%;
+    display: table;
+}
+
+.jira-container thead {
+    vertical-align: top;
+    display: table-row-group;
+}
+
+.jira-container tbody {
+    vertical-align: middle;
+    display: table-row-group;
+}
+
+.jira-container tr {
+    display: table-row;
+    vertical-align: inherit;
+}
+
+.jira-container th {
+    text-align: left;
+    border-bottom: 1px solid #dfe1e6;
+    padding-right: 15px;
+    color: #7a869a;
+    font-weight: bold;
+    padding: 7px 10px;
+}
+
+.jira-container td {
+    text-align: left;
+    border-bottom: 1px solid #dfe1e6;
+    padding: 7px 10px;
+    vertical-align: top;
+    word-wrap: break-word;
 }

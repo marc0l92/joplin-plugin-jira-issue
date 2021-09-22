@@ -105,7 +105,24 @@ export class View {
     //     return out;
     // }
 
-    async renderIssue(issueJson: any): Promise<string> {
+    renderSearchResults(searchResultsJson: any): string {
+        console.log('renderSearchResults', searchResultsJson, this._settings)
+        const template = Templater(Templates.searchRow)
+
+        let outputHtml = Templates.searchHead
+
+        for (let i in searchResultsJson.issues) {
+            outputHtml += template({
+                settings: this._settings.toObject(),
+                searchResult: searchResultsJson.issues[i],
+                statusColor: this._settings.getStatusColor(searchResultsJson.issues[i].fields.status.name),
+            })
+        }
+
+        return outputHtml + Templates.searchFoot
+    }
+
+    renderIssue(issueJson: any): string {
         console.log('renderIssue', issueJson, this._settings)
         const template = Templater(Templates.issue)
 
@@ -121,18 +138,18 @@ export class View {
         return template({
             settings: this._settings.toObject(),
             issue: issueJson,
-            statusColor: this._settings.get('renderStatus') ? await this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
+            statusColor: this._settings.get('renderStatus') ? this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
             progress: progress,
         })
     }
 
-    async renderError(issue: string, error: string): Promise<string> {
-        console.log('renderError', issue, error)
+    renderError(query: string, error: string): string {
+        console.log('renderError', query, error)
         const template = Templater(Templates.error)
 
         return template({
-            issue: issue,
-            error: error,
+            query: query,
+            error: error.toString(),
         })
     }
 }
@@ -199,8 +216,53 @@ const Templates = {
                 <span>{{error}}</span>
             </summary>
             <div class="flex-center">
-                <span><strong>Issue:</strong> {{issue}}</span>
+                <span><strong>Query:</strong> {{query}}</span>
             </div>
         </details>
+    `,
+
+    searchHead: `
+        <table class="jira-search">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Summary</th>
+                    <th>T</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Due</th>
+                    <th>Assignee</th>
+                    <th>Reporter</th>
+                    <th>P</th>
+                    <th>Status</th>
+                    <th>Resolution</th>
+                </tr>
+            </thead>
+            <tbody>
+    `,
+
+    searchRow: `
+        <tr>
+            <td class="no-text-wrap">{{searchResult.key}}</td>
+            <td>{{searchResult.fields.summary}}</td>
+            <td>
+                <img alt="{{searchResult.fields.issuetype.name}}" title="{{searchResult.fields.issuetype.name}}"
+                    src="{{searchResult.fields.issuetype.iconUrl}}" />
+            </td>
+            <td>01/01/2021</td>
+            <td>01/01/2021</td>
+            <td></td>
+            <td>{{searchResult.fields.assignee.displayName}}</td>
+            <td>{{searchResult.fields.reporter.displayName}}</td>
+            <td><img alt="Priority: Critical" title="Priority: Critical"
+                    src="https://jira.secondlife.com/images/icons/priorities/critical.svg" /></td>
+            <td class="no-text-wrap"><span class="tag uppercase tag-{{statusColor}}">{{searchResult.fields.status.name}}</span></td>
+            <td>Done</td>
+        </tr>
+    `,
+
+    searchFoot: `
+            </tbody>
+        </table>
     `,
 }

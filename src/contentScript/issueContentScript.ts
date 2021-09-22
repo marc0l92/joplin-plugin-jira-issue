@@ -1,12 +1,5 @@
 import * as MarkdownIt from "markdown-it"
-const issueTokenName = "jira-issue"
-const searchTokenName = "jira-search"
-
-function escapeHTML(str) {
-    var p = document.createElement("p");
-    p.appendChild(document.createTextNode(str));
-    return p.innerHTML;
-}
+const tokenName = "jira-issue"
 
 export default function (context) {
     return {
@@ -21,9 +14,9 @@ export default function (context) {
             }
 
             markdownIt.renderer.rules.fence = function (tokens, idx, options, env, self) {
-                console.log(`Jira-Issue[${renderIndex}] render markdown-it plugin`)
                 const token = tokens[idx]
-                if (token.info !== issueTokenName && token.info !== searchTokenName) return defaultRender(tokens, idx, options, env, self)
+                if (token.info !== tokenName) return defaultRender(tokens, idx, options, env, self)
+                console.log(`Jira-Issue[${renderIndex}] render markdown-it plugin`)
 
                 renderIndex++
                 const content = JSON.stringify(token.content)

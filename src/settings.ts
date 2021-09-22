@@ -9,6 +9,7 @@ enum SettingDefaults {
     ApiBasePath = '/rest/api/latest',
     CacheTime = '15m',
     StatusColor = 'medium-gray',
+    MaxSearchResults = 10,
 }
 
 interface SettingsConfig {
@@ -56,6 +57,15 @@ export class Settings {
             advanced: false,
             label: 'Cache: time',
             description: 'Time before the cached issue status expires. A low value will refresh the data very often but do a lot of request to the server. E.g. "15m", "24h", "5s"'
+        },
+        maxSearchResults: {
+            value: SettingDefaults.MaxSearchResults,
+            type: SettingItemType.Int,
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: false,
+            label: 'Search: max reults count',
+            description: 'Maximum number of issues retrieved during a jira-search.'
         },
         renderKey: {
             value: true,

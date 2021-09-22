@@ -8,7 +8,7 @@ interface Cache {
     }
 }
 
-export class IssuesCache {
+export class ObjectsCache {
     private _settings: Settings
     private _cache: Cache
 
@@ -17,14 +17,14 @@ export class IssuesCache {
         this._cache = {}
     }
 
-    addCachedIssue(key: string, issue: any) {
+    addCachedObject(key: string, object: any) {
         this._cache[key] = {
             updateTime: Date.now(),
-            data: issue,
+            data: object,
         }
     }
 
-    getCachedIssue(key: string) {
+    getCachedObject(key: string) {
         if (key in this._cache && this._cache[key].updateTime + ms(this._settings.get('cacheTime')) > Date.now()) {
             return this._cache[key].data
         }

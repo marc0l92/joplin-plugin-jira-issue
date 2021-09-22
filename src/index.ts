@@ -5,11 +5,12 @@ import { MenuItem, MenuItemLocation } from 'api/types'
 import { JiraClient } from "./jiraClient"
 import { Settings } from "./settings"
 import { View } from "./view"
-import { IssuesCache } from './issuesCache'
+import { ObjectsCache } from './objectsCache'
 
 
 enum Config {
-    MarkdownFenceId = 'jira',
+    MarkdownIssueFenceId = 'jira-issue',
+    MarkdownSearchFenceId = 'jira-search',
 }
 
 // const Templates: any = {
@@ -33,7 +34,7 @@ joplin.plugins.register({
     onStart: async function () {
         const settings = new Settings()
         const jiraClient = new JiraClient(settings)
-        const cache = new IssuesCache(settings)
+        const cache = new ObjectsCache(settings)
         const view = new View(settings)
 
         // function unpackAttributes(attributesStr: string): any {
@@ -211,16 +212,25 @@ joplin.plugins.register({
             fenceLine = fenceLine.replace(settings.get('jiraHost') + '/browse/', '')
             return fenceLine.trim()
         }
-
+        function extractSearchQuery(fenceLine: string) {
+            // Remove comments
+            fenceLine = fenceLine.replace(/\s*#.*$/, '')
+            return fenceLine.trim()
+        }
 
         await joplin.contentScripts.register(
             ContentScriptType.MarkdownItPlugin,
-            Config.MarkdownFenceId,
-            './contentScript/contentScript.js'
+            Config.MarkdownIssueFenceId,
+            './contentScript/issueContentScript.js'
+        );
+        await joplin.contentScripts.register(
+            ContentScriptType.MarkdownItPlugin,
+            Config.MarkdownSearchFenceId,
+            './contentScript/searchContentScript.js'
         );
 
-        await joplin.contentScripts.onMessage(Config.MarkdownFenceId, async (message: string) => {
-            console.log("Message:", message)
+        await joplin.contentScripts.onMessage(Config.MarkdownIssueFenceId, async (message: string) => {
+            console.log("Issue message:", message)
 
             const issues = message.split('\n')
             let outputHtml = ''
@@ -230,18 +240,49 @@ joplin.plugins.register({
                     if (issueKey) {
                         console.log('Detected issue:', issueKey)
 
-                        const cachedIssue = cache.getCachedIssue(issueKey)
+                        const cachedIssue = cache.getCachedObject(issueKey)
                         if (cachedIssue) {
-                            outputHtml += await view.renderIssue(cachedIssue)
+                            outputHtml += view.renderIssue(cachedIssue)
                         } else {
                             const newIssue = await jiraClient.getIssue(issueKey)
                             await jiraClient.updateStatusColorCache(newIssue.fields.status.name)
-                            cache.addCachedIssue(issueKey, newIssue)
-                            outputHtml += await view.renderIssue(newIssue)
+                            cache.addCachedObject(issueKey, newIssue)
+                            outputHtml += view.renderIssue(newIssue)
                         }
                     }
                 } catch (err) {
-                    outputHtml += await view.renderError(issues[i], err)
+                    outputHtml += view.renderError(issues[i], err)
+                }
+            }
+            return outputHtml
+        });
+
+        await joplin.contentScripts.onMessage(Config.MarkdownSearchFenceId, async (message: string) => {
+            console.log("Search message:", message)
+
+            const queries = message.split('\n')
+            let outputHtml = ''
+            for (let i in queries) {
+                try {
+                    const query = extractSearchQuery(queries[i])
+                    if (query) {
+                        console.log('Detected query:', query)
+
+                        const cachedSearchResults = cache.getCachedObject(query)
+                        if (cachedSearchResults) {
+                            outputHtml += view.renderSearchResults(cachedSearchResults)
+                        } else {
+                            const newSearchResults = await jiraClient.getSearchResults(query, settings.get('maxSearchResults'))
+                            console.log("newSearchResults", newSearchResults)
+                            for (let i in newSearchResults.issues) {
+                                await jiraClient.updateStatusColorCache(newSearchResults.issues[i].fields.status.name)
+                            }
+                            cache.addCachedObject(query, newSearchResults)
+                            outputHtml += view.renderSearchResults(newSearchResults)
+                        }
+                    }
+                } catch (err) {
+                    outputHtml += view.renderError(queries[i], err)
                 }
             }
             return outputHtml
