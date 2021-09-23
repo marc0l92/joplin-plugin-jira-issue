@@ -10,6 +10,22 @@ enum SettingDefaults {
     CacheTime = '15m',
     StatusColor = 'medium-gray',
     MaxSearchResults = 10,
+    SearchTemplate = 'kut<>rapsd',
+    TemplateLegend = `
+ k: $.key ;
+ u: $.fields.summary ;
+ s: $.fields.status ;
+ c: $.fields.creator ;
+ r: $.fields.reporter ;
+ a: $.fields.assignee ;
+ p: $.fields.priority ;
+ d: $.fields.duedate ;
+ %: $.fields.aggregateprogress ;
+ t: $.fields.issuetype ;
+ e: $.fields.resolution ;
+ <: $.fields.created ;
+ >: $.fields.updated ;
+`
 }
 
 interface SettingsConfig {
@@ -37,7 +53,7 @@ export class Settings {
             public: true,
             advanced: false,
             label: 'Connection: username',
-            description: 'Username of your jira account used to access the API using basic authentication.'
+            description: 'Username of your jira account used to access the API using basic authentication.',
         },
         password: {
             value: '',
@@ -47,7 +63,7 @@ export class Settings {
             advanced: false,
             secure: true,
             label: 'Connection: password',
-            description: 'Password of your jira account used to access the API using basic authentication.'
+            description: 'Password of your jira account used to access the API using basic authentication.',
         },
         cacheTime: {
             value: SettingDefaults.CacheTime,
@@ -56,7 +72,7 @@ export class Settings {
             public: true,
             advanced: false,
             label: 'Cache: time',
-            description: 'Time before the cached issue status expires. A low value will refresh the data very often but do a lot of request to the server. E.g. "15m", "24h", "5s"'
+            description: 'Time before the cached issue status expires. A low value will refresh the data very often but do a lot of request to the server. E.g. "15m", "24h", "5s"',
         },
         maxSearchResults: {
             value: SettingDefaults.MaxSearchResults,
@@ -65,115 +81,16 @@ export class Settings {
             public: true,
             advanced: false,
             label: 'Search: max reults count',
-            description: 'Maximum number of issues retrieved during a jira-search.'
+            description: 'Maximum number of issues retrieved during a jira-search.',
         },
-        renderKey: {
-            value: true,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: code',
-            description: 'Render the field $.key'
-        },
-        renderPriority: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: priority',
-            description: 'Render the field $.fields.priority.name'
-        },
-        renderDueDate: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: due date',
-            description: 'Render the field $.fields.duedate'
-        },
-        renderStatus: {
-            value: true,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: status',
-            description: 'Render the field $.fields.status.name'
-        },
-        renderCreator: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: creator',
-            description: 'Render the field $.fields.creator.displayName'
-        },
-        renderAssignee: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: assignee',
-            description: 'Render the field $.fields.assignee.displayName'
-        },
-        renderReporter: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: reporter',
-            description: 'Render the field $.fields.reporter.displayName'
-        },
-        renderProgress: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: progress',
-            description: 'Render the field $.fields.aggregateprogress.percent'
-        },
-        renderType: {
-            value: false,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: type',
-            description: 'Render the field $.fields.issuetype.name'
-        },
-        renderTypeIcon: {
-            value: true,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: type icon',
-            description: 'Render the field $.fields.issuetype.iconUrl'
-        },
-        renderSummary: {
-            value: true,
-            type: SettingItemType.Bool,
-            section: 'jiraIssue.settings',
-            public: true,
-            advanced: true,
-            label: 'Render: summary',
-            description: 'Render the field $.fields.summary'
-        },
-        searchTemplateQuery: {
-            value: 'resolution = Unresolved AND assignee = currentUser() AND status = \'In Progress\' order by priority DESC',
+        searchTemplate: {
+            value: SettingDefaults.SearchTemplate,
             type: SettingItemType.String,
             section: 'jiraIssue.settings',
             public: true,
             advanced: true,
-            label: 'Template: JiraSearch template default query',
-            description: 'Default query to use when a new JiraSearch is created using the template option'
+            label: 'Rendering: Search display template',
+            description: 'Column to display in the jira-search table.\n' + SettingDefaults.TemplateLegend + '\n Default value: ' + SettingDefaults.SearchTemplate,
         },
     }
 
@@ -199,7 +116,7 @@ export class Settings {
         if (key in this._config) {
             return this._config[key].value
         }
-        throw 'Setting not found'
+        throw 'Setting not found: ' + key
     }
     toObject(): any {
         return Object.keys(this._config).reduce((result, key) => {
@@ -213,7 +130,7 @@ export class Settings {
         await joplin.settings.registerSection('jiraIssue.settings', {
             label: 'Jira Issue',
             iconName: 'fa fa-sitemap',
-            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. In order to track an issue use the context menu in your notes and add a new template. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue#readme'
+            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue#readme'
         })
 
         await joplin.settings.registerSettings(this._config)

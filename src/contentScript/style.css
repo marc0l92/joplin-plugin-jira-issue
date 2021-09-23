@@ -63,7 +63,7 @@
 .jira-container .jira-search {
     overflow-x: auto;
     width: 95vw;
-    margin-left: -20vw;
+    margin-left: calc((-95vw + 100%) / 2);
 }
 
 /* Tags */

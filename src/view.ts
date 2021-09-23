@@ -1,6 +1,72 @@
 import * as Templater from 'templater.js'
 import { Settings } from "./settings"
 
+function getDate(dateTime: string): string {
+    return dateTime.replace(/T.*/, '')
+}
+
+function getIssueProperties(issue: any, settings: Settings): any {
+    let progress
+    if (issue.fields.aggregateprogress.percent) {
+        progress = issue.fields.aggregateprogress.percent
+    } else if (issue.fields.aggregateprogress.total > 0) {
+        progress = issue.fields.aggregateprogress.progress / issue.fields.aggregateprogress.total * 100
+    }
+
+    return {
+        key: issue.key,
+        jiraHost: settings.get('jiraHost'),
+        summary: issue.fields.summary,
+        issueType: (issue.fields.issuetype) ? {
+            name: issue.fields.issuetype.name,
+            icon: issue.fields.issuetype.iconUrl,
+        } : null,
+        created: (issue.fields.created) ? {
+            dateTime: issue.fields.created,
+            date: getDate(issue.fields.created)
+        } : null,
+        updated: (issue.fields.updated) ? {
+            dateTime: issue.fields.updated,
+            date: getDate(issue.fields.updated)
+        } : null,
+        dueDate: (issue.fields.duedate) ? {
+            dateTime: issue.fields.duedate,
+            date: getDate(issue.fields.duedate)
+        } : null,
+        creator: (issue.fields.creator) ? issue.fields.creator.displayName : null,
+        reporter: (issue.fields.reporter) ? issue.fields.reporter.displayName : null,
+        assignee: (issue.fields.assignee) ? issue.fields.assignee.displayName : null,
+        priority: (issue.fields.priority && issue.fields.priority.id != "6") ? {
+            name: issue.fields.priority.name,
+            icon: issue.fields.priority.iconUrl,
+        } : null,
+        status: (issue.fields.status) ? {
+            name: issue.fields.status.name,
+            color: settings.getStatusColor(issue.fields.status.name),
+        } : null,
+        resolution: issue.fields.resolution,
+        progress: progress,
+    }
+}
+
+function buildTableHeader(template: string): string {
+    let outputHtml = ''
+    for (let i = 0; i < template.length; i++) {
+        outputHtml += '<th>' + Templates.searchColumns[template[i]].title + '</th>'
+    }
+    return outputHtml
+}
+
+function buildTableRow(template: string, issueProperties: any): string {
+    let outputHtml = ''
+    for (let i = 0; i < template.length; i++) {
+        const columnHtmlTemplate = Templater(Templates.searchColumns[template[i]].body)
+        const attributes = Templates.searchColumns[template[i]].noTextWrap ? 'class="no-text-wrap"' : ''
+        outputHtml += `<td ${attributes}>` + columnHtmlTemplate(issueProperties) + '</td>'
+    }
+    return outputHtml
+}
+
 export class View {
     private _settings: Settings
 
@@ -10,40 +76,24 @@ export class View {
 
     renderSearchResults(searchResultsJson: any): string {
         console.log('renderSearchResults', searchResultsJson, this._settings)
-        const template = Templater(Templates.searchRow)
-
-        let outputHtml = Templates.searchHead
+        let outputHtml = Templates.searchHead[0]
+            + buildTableHeader(this._settings.get('searchTemplate'))
+            + Templates.searchHead[1]
 
         for (let i in searchResultsJson.issues) {
-            outputHtml += template({
-                settings: this._settings.toObject(),
-                data: searchResultsJson.issues[i],
-                statusColor: this._settings.getStatusColor(searchResultsJson.issues[i].fields.status.name),
-            })
+            const issue = searchResultsJson.issues[i]
+            outputHtml += '<tr>'
+                + buildTableRow(this._settings.get('searchTemplate'), getIssueProperties(issue, this._settings))
+                + '</tr>'
         }
 
         return outputHtml + Templates.searchFoot
     }
 
-    renderIssue(issueJson: any): string {
-        console.log('renderIssue', issueJson, this._settings)
-        const template = Templater(Templates.issue)
-
-        let progress
-        if (this._settings.get('renderProgress')) {
-            if (issueJson.fields.aggregateprogress.percent) {
-                progress = issueJson.fields.aggregateprogress.percent
-            } else if (issueJson.fields.aggregateprogress.total > 0) {
-                progress = issueJson.fields.aggregateprogress.progress / issueJson.fields.aggregateprogress.total * 100
-            }
-        }
-
-        return template({
-            settings: this._settings.toObject(),
-            data: issueJson,
-            statusColor: this._settings.get('renderStatus') ? this._settings.getStatusColor(issueJson.fields.status.name) : undefined,
-            progress: progress,
-        })
+    renderIssue(issue: any): string {
+        console.log('renderIssue', issue, this._settings)
+        const htmlTemplate = Templater(Templates.issue)
+        return htmlTemplate(getIssueProperties(issue, this._settings))
     }
 
     renderError(query: string, error: string): string {
@@ -61,54 +111,52 @@ const Templates = {
     issue: `
         <details class="jira-issue">
             <summary class="flex-center">
-                <a href="{{settings.jiraHost}}/browse/{{data.key}}" class="flex-center">
-                    {{#if (settings.renderTypeIcon, data.fields.issuetype.iconUrl)}}
-                    <img alt="{{data.fields.issuetype.name}}" title="{{data.fields.issuetype.name}}"
-                        src="{{data.fields.issuetype.iconUrl}}" />
+                <a href="{{jiraHost}}/browse/{{key}}" class="flex-center">
+                    {{#if (issueType)}}
+                    <img alt="{{issueType.name}}" title="{{issueType.name}}"
+                        src="{{issueType.icon}}" />
                     {{/if}}
-                    {{#if (settings.renderKey, data.key)}}
-                    <span>{{data.key}}</span>
-                    {{/if}}
+                    <span>{{key}}</span>
                 </a>
-                {{#if (settings.renderSummary, data.fields.summary)}}
+                {{#if (summary)}}
                 <span>-</span>
-                <span>{{data.fields.summary}}</span>
+                <span>{{summary}}</span>
                 {{/if}}
-                {{#if (settings.renderStatus, data.fields.status.name)}}
-                <span class="tag uppercase tag-{{statusColor}}" title="Status: {{data.fields.status.name}}">{{data.fields.status.name}}</span>
+                {{#if (status)}}
+                <span class="tag uppercase tag-{{status.color}}" title="Status: {{status.name}}">{{status.name}}</span>
                 {{/if}}
             </summary>
             <div class="flex-center">
-                {{#if (settings.renderPriority, data.fields.priority.name)}}
-                <span class="tag tag-medium-gray outline" title="Priority: {{data.fields.priority.name}}">P:
-                    {{data.fields.priority.name}}</span>
+                {{#if (priority)}}
+                <span class="tag tag-medium-gray outline" title="Priority: {{priority.name}}">P:
+                    {{priority.name}}</span>
                 {{/if}}
-                {{#if (settings.renderCreator, data.fields.creator.displayName)}}
-                <span class="tag tag-medium-gray outline" title="Creator: {{data.fields.creator.displayName}}">C:
-                    {{data.fields.creator.displayName}}</span>
+                {{#if (creator)}}
+                <span class="tag tag-medium-gray outline" title="Creator: {{creator}}">C:
+                    {{creator}}</span>
                 {{/if}}
-                {{#if (settings.renderAssignee, data.fields.assignee.displayName)}}
-                <span class="tag tag-medium-gray outline" title="Assignee: {{data.fields.assignee.displayName}}">A:
-                    {{data.fields.assignee.displayName}}</span>
+                {{#if (reporter)}}
+                <span class="tag tag-medium-gray outline" title="Reporter: {{reporter}}">R:
+                    {{reporter}}</span>
                 {{/if}}
-                {{#if (settings.renderReporter, data.fields.reporter.displayName)}}
-                <span class="tag tag-medium-gray outline" title="Reporter: {{data.fields.reporter.displayName}}">R:
-                    {{data.fields.reporter.displayName}}</span>
+                {{#if (assignee)}}
+                <span class="tag tag-medium-gray outline" title="Assignee: {{assignee}}">A:
+                    {{assignee}}</span>
                 {{/if}}
-                {{#if (settings.renderType, data.fields.issuetype.name)}}
-                <span class="tag tag-medium-gray outline" title="Type: {{data.fields.issuetype.name}}">T:
-                    {{data.fields.issuetype.name}}</span>
+                {{#if (issueType)}}
+                <span class="tag tag-medium-gray outline" title="Type: {{issueType.name}}">T:
+                    {{issueType.name}}</span>
                 {{/if}}
-                {{#if (settings.renderProgress, progress)}}
+                {{#if (progress)}}
                 <span class="tag tag-medium-gray outline" title="Progress: {{progress}}">%: {{progress}}</span>
                 {{/if}}
-                {{#if (settings.renderDueDate, data.fields.duedate)}}
-                <span class="tag tag-medium-gray outline" title="Due date: {{data.fields.duedate}}">DD:
-                    {{data.fields.duedate}}</span>
+                {{#if (dueDate)}}
+                <span class="tag tag-medium-gray outline" title="Due date: {{dueDate}}">DD:
+                    {{dueDate}}</span>
                 {{/if}}
             </div>
         </details>
-        `,
+    `,
 
     error: `
         <details class="jira-issue">
@@ -124,88 +172,102 @@ const Templates = {
         </details>
     `,
 
-    searchHead: `
+    searchHead: [`
         <div class="jira-search">
             <table>
                 <thead>
-                    <tr>
-                        <th>Key</th>
-                        <th>Summary</th>
-                        <th>T</th>
-                        <th>Created</th>
-                        <th>Updated</th>
-                        <th>Due</th>
-                        <th>Assignee</th>
-                        <th>Reporter</th>
-                        <th>P</th>
-                        <th>Status</th>
-                        <th>Resolution</th>
-                    </tr>
+                    <tr>`, `</tr>
                 </thead>
                 <tbody>
-    `,
-
-    searchRow: `
-        <tr>
-            <td>
-                <a href="{{settings.jiraHost}}/browse/{{data.key}}">{{data.key}}</a>
-            </td>
-            <td>
-                {{#if (data.fields.summary)}}
-                <a href="{{settings.jiraHost}}/browse/{{data.key}}">
-                    {{data.fields.summary}}
-                </a>
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.issuetype.name)}}
-                <a href="{{settings.jiraHost}}/browse/{{data.key}}">
-                    <img alt="{{data.fields.issuetype.name}}" title="{{data.fields.issuetype.name}}"
-                        src="{{data.fields.issuetype.iconUrl}}" />
-                </a>
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.created)}}
-                {{data.fields.created}}
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.updated)}}
-                {{data.fields.updated}}
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.duedate)}}
-                {{data.fields.duedate}}
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.assignee.displayName)}}
-                {{data.fields.assignee.displayName}}
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.reporter.displayName)}}
-                {{data.fields.reporter.displayName}}
-                {{/if}}
-            </td>
-            <td>
-                {{#if (data.fields.priority.name)}}
-                <img alt="Priority: {{data.fields.priority.name}}" title="Priority: {{data.fields.priority.name}}"
-                    src="{{data.fields.priority.iconUrl}}" />
-                {{/if}}
-            </td>
-            <td class="no-text-wrap">
-                <span class="tag uppercase tag-{{statusColor}}">{{data.fields.status.name}}</span>
-            </td>
-            <td>
-                {{#if (data.fields.resolution)}}
-                {{data.fields.resolution}}
-                {{/if}}
-            </td>
-        </tr>
-    `,
+    `],
+    searchColumns: {
+        'k': {
+            title: 'Key',
+            body: `<a href="{{jiraHost}}/browse/{{key}}">{{key}}</a>`,
+        },
+        'u': {
+            title: 'Summary',
+            body: `
+            {{#if (summary)}}
+            <a href="{{jiraHost}}/browse/{{key}}">{{summary}}</a>
+            {{/if}}`,
+        },
+        't': {
+            title: 'T',
+            body: `
+            {{#if (issueType)}}
+            <a href="{{jiraHost}}/browse/{{key}}">
+                <img alt="{{issueType.name}}" title="{{issueType.name}}"
+                    src="{{issueType.icon}}" />
+            </a>
+            {{/if}}`,
+        },
+        '<': {
+            title: 'Created',
+            body: `
+            {{#if (created)}}
+            <span title="{{created.dateTime}}">{{created.date}}</span>
+            {{/if}}`,
+        },
+        '>': {
+            title: 'Updated',
+            body: `
+            {{#if (updated)}}
+            <span title="{{updated.dateTime}}">{{updated.date}}</span>
+            {{/if}}`,
+        },
+        'd': {
+            title: 'DueDate',
+            body: `
+            {{#if (dueDate)}}
+            <span title="{{dueDate.dateTime}}">{{dueDate.date}}</span>
+            {{/if}}`,
+        },
+        'c': {
+            title: 'Creator',
+            body: `
+            {{#if (creator)}}
+            {{creator}}
+            {{/if}}`,
+        },
+        'r': {
+            title: 'Reporter',
+            body: `
+            {{#if (reporter)}}
+            {{reporter}}
+            {{/if}}`,
+        },
+        'a': {
+            title: 'Assignee',
+            body: `
+            {{#if (assignee)}}
+            {{assignee}}
+            {{/if}}`,
+        },
+        'p': {
+            title: 'P',
+            body: `
+            {{#if (priority)}}
+            <img alt="Priority: {{priority.name}}" title="Priority: {{priority.name}}"
+                src="{{priority.icon}}" />
+            {{/if}}`,
+        },
+        's': {
+            title: 'Status',
+            body: `
+            {{#if (status)}}
+            <span class="tag uppercase tag-{{status.color}}">{{status.name}}</span>
+            {{/if}}`,
+            noTextWrap: true,
+        },
+        'e': {
+            title: 'Resolution',
+            body: `
+            {{#if (resolution)}}
+            {{resolution}}
+            {{/if}}`,
+        },
+    },
 
     searchFoot: `
                 </tbody>
