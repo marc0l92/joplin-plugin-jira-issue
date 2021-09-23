@@ -198,3 +198,21 @@
     vertical-align: top;
     word-wrap: break-word;
 }
+
+/* Inline tag */
+
+.jira-container.container-block {
+    display: block;
+}
+
+.jira-container.container-inline {
+    display: inline-block;
+}
+
+.jira-container.container-block .hide-block {
+    display: none;
+}
+
+.jira-container.container-inline .hide-inline {
+    display: none;
+}

@@ -119,14 +119,15 @@ const Templates = {
                     <span>{{key}}</span>
                 </a>
                 {{#if (summary)}}
-                <span>-</span>
-                <span>{{summary}}</span>
+                <span class="hide-inline">-</span>
+                <span class="hide-inline">{{summary}}</span>
                 {{/if}}
                 {{#if (status)}}
                 <span class="tag uppercase tag-{{status.color}}" title="Status: {{status.name}}">{{status.name}}</span>
                 {{/if}}
             </summary>
             <div class="flex-center">
+                <span class="tag tag-medium-gray outline hide-block" title="Summary: {{summary}}">S: {{summary}}</span>
                 {{#if (priority)}}
                 <span class="tag tag-medium-gray outline" title="Priority: {{priority.name}}">P:
                     {{priority.name}}</span>

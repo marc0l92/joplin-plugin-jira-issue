@@ -29,7 +29,7 @@ export default function (context) {
                 `.replace(/"/g, '&quot;')
 
                 return `
-                <div id="jira-search-root-${renderIndex}" class="jira-container">
+                <div id="jira-search-root-${renderIndex}" class="jira-container container-block">
                     <div class="jira-issue flex-center">
                         <div class="lds-dual-ring"></div>
                         <span>-</span>
