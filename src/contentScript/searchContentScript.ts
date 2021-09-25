@@ -1,7 +1,7 @@
 import * as MarkdownIt from "markdown-it"
 import { buildRender, ContainerType, ElementType, unpackAttributes } from './contentScriptUtils'
 
-const fenceName = 'jira-search'
+const fenceNameRegExp = /jira-?search/
 const htmlTagRegExpMulti = /<jirasearch +(?<attributes>[^>]+?) *\/?>/g
 const htmlTagRegExp = /<jirasearch +(?<attributes>[^>]+?) *\/?>/
 
@@ -13,7 +13,7 @@ export default function (context) {
                 context.contentScriptId,
                 ElementType.Search,
                 ContainerType.Block,
-                t => t.info === fenceName,
+                t => fenceNameRegExp.test(t.info.toLowerCase()),
                 t => t.content
             )
             markdownIt.renderer.rules.html_inline = buildRender(
