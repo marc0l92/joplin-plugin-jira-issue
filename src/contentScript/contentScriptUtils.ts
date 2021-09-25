@@ -31,16 +31,16 @@ export function buildRender(renderer: RenderRule, contentScriptId: string, eleme
     }
     return function (tokens, idx, options, env, self) {
         const token = tokens[idx]
-        console.log('token', token, checkToken(token))
+        // console.log('token', token, checkToken(token))
         if (!checkToken(token)) return defaultRender(tokens, idx, options, env, self)
 
         const randomId = crypto.randomBytes(8).toString('hex')
-        console.log(`jira-${elementType}[${randomId}] render markdown-it plugin`)
+        // console.log(`jira-${elementType}[${randomId}] render markdown-it plugin`)
 
         const content = JSON.stringify(extractContent(token))
 
         const sendContentToJoplinPlugin = `
-        console.log('jira-${elementType}[${randomId}] send content:', ${content});
+        // console.log('jira-${elementType}[${randomId}] send content:', ${content});
         webviewApi.postMessage('${contentScriptId}', ${content}).then((response) => {
             document.getElementById('jira-${elementType}-root-${randomId}').innerHTML = response;
         });

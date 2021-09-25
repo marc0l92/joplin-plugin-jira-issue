@@ -30,4 +30,8 @@ export class ObjectsCache {
         }
         return undefined
     }
+
+    clear() {
+        this._cache = {}
+    }
 }

@@ -42,6 +42,7 @@ joplin.plugins.register({
         settings.register();
         joplin.settings.onChange(async (event: ChangeEvent) => {
             await settings.read(event)
+            cache.clear()
         })
 
         // Register command
@@ -158,8 +159,8 @@ joplin.plugins.register({
                         if (cachedSearchResults) {
                             outputHtml += view.renderSearchResults(cachedSearchResults)
                         } else {
+                            console.log('maxSearchResults', settings.get('maxSearchResults'))
                             const newSearchResults = await jiraClient.getSearchResults(query, settings.get('maxSearchResults'))
-                            // console.log('newSearchResults', newSearchResults)
                             for (let i in newSearchResults.issues) {
                                 await jiraClient.updateStatusColorCache(newSearchResults.issues[i].fields.status.name)
                             }
