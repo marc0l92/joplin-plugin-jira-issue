@@ -12,6 +12,9 @@ export enum ContainerType {
     Block = 'block',
 }
 
+export type TokenCheck = (token: Token) => boolean
+export type TokenTransform = (token: Token) => string
+
 export function unpackAttributes(attributesStr: string): any {
     const attributesObj = {}
     while (attributesStr.length > 0) {
@@ -25,7 +28,7 @@ export function unpackAttributes(attributesStr: string): any {
     return attributesObj
 }
 
-export function buildRender(renderer: RenderRule, contentScriptId: string, elementType: ElementType, containerType: ContainerType, checkToken: (t: Token) => boolean, extractContent: (t: Token) => string) {
+export function buildRender(renderer: RenderRule, contentScriptId: string, elementType: ElementType, containerType: ContainerType, checkToken: TokenCheck, extractContent: TokenTransform, extractExtraText: TokenTransform = t => '') {
     const defaultRender = renderer || function (tokens, idx, options, env, self) {
         return self.renderToken(tokens, idx, options)
     }
@@ -46,6 +49,8 @@ export function buildRender(renderer: RenderRule, contentScriptId: string, eleme
         });
         `.replace(/"/g, '&quot;')
 
+        const extraText = extractExtraText(token)
+
         return `
         <div id="jira-${elementType}-root-${randomId}" class="jira-container container-${containerType}">
             <div class="jira-${elementType} flex-center">
@@ -54,8 +59,6 @@ export function buildRender(renderer: RenderRule, contentScriptId: string, eleme
                 <span>Getting ${elementType} details...</span>
                 <span class="tag tag-grey outline" title="Status">STATUS</span>
             </div>
-        </div>
-        <style onload="${sendContentToJoplinPlugin}"></style>
-        `
+        </div>` + (extraText ? '<p>' + extraText + '</p>' : '') + `<style onload="${sendContentToJoplinPlugin}"></style>`
     }
 }

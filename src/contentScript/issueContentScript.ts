@@ -1,9 +1,10 @@
 import * as MarkdownIt from "markdown-it"
 import { unpackAttributes, buildRender, ElementType, ContainerType } from './contentScriptUtils'
 
-const fenceNameRegExp = /jira-?issue/
-const htmlTagRegExpMulti = /<jiraissue +(?<attributes>[^>]+?) *\/?>/g
-const htmlTagRegExp = /<jiraissue +(?<attributes>[^>]+?) *\/?>/
+const fenceNameRegExp = /jira-?issue/i
+const htmlTagRegExpMulti = /<jiraissue +(?<attributes>[^>]+?) *\/?>/gi
+const htmlTagRegExp = /<jiraissue +(?<attributes>[^>]+?) *\/?>/i
+const extraTextRegExp = /.*<jiraissue +[^>]+? *\/?>(?<extraText>.*)/i
 
 export default function (context) {
     return {
@@ -13,7 +14,7 @@ export default function (context) {
                 context.contentScriptId,
                 ElementType.Issue,
                 ContainerType.Block,
-                t => fenceNameRegExp.test(t.info.toLowerCase()),
+                t => fenceNameRegExp.test(t.info),
                 t => t.content
             )
             markdownIt.renderer.rules.html_inline = buildRender(
@@ -21,16 +22,17 @@ export default function (context) {
                 context.contentScriptId,
                 ElementType.Issue,
                 ContainerType.Inline,
-                t => htmlTagRegExp.test(t.content.toLowerCase()),
-                t => t.content.toLowerCase().match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n')
+                t => htmlTagRegExp.test(t.content),
+                t => t.content.match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n')
             )
             markdownIt.renderer.rules.html_block = buildRender(
                 markdownIt.renderer.rules.html_block,
                 context.contentScriptId,
                 ElementType.Issue,
                 ContainerType.Inline,
-                t => htmlTagRegExp.test(t.content.toLowerCase()),
-                t => t.content.toLowerCase().match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n')
+                t => htmlTagRegExp.test(t.content),
+                t => t.content.match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n'),
+                t => t.content.replace(/\n/g,'').match(extraTextRegExp).groups.extraText
             )
         },
         assets: function () {
