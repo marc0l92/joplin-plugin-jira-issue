@@ -2,6 +2,7 @@ import * as MarkdownIt from "markdown-it"
 import { unpackAttributes, buildRender, ElementType, ContainerType } from './contentScriptUtils'
 
 const fenceName = 'jira-issue'
+const htmlTagRegExpMulti = /<jiraissue +(?<attributes>[^>]+?) *\/?>/g
 const htmlTagRegExp = /<jiraissue +(?<attributes>[^>]+?) *\/?>/
 
 export default function (context) {
@@ -21,7 +22,7 @@ export default function (context) {
                 ElementType.Issue,
                 ContainerType.Inline,
                 t => htmlTagRegExp.test(t.content.toLowerCase()),
-                t => unpackAttributes(t.content.toLowerCase().match(htmlTagRegExp).groups.attributes).key
+                t => t.content.toLowerCase().match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n')
             )
             markdownIt.renderer.rules.html_block = buildRender(
                 markdownIt.renderer.rules.html_block,
@@ -29,7 +30,7 @@ export default function (context) {
                 ElementType.Issue,
                 ContainerType.Inline,
                 t => htmlTagRegExp.test(t.content.toLowerCase()),
-                t => unpackAttributes(t.content.toLowerCase().match(htmlTagRegExp).groups.attributes).key
+                t => t.content.toLowerCase().match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n')
             )
         },
         assets: function () {

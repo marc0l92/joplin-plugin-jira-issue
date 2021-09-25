@@ -209,6 +209,10 @@
     display: inline-block;
 }
 
+.jira-container.container-inline .jira-issue {
+    display: inline-block;
+}
+
 .jira-container.container-block .hide-block {
     display: none;
 }
