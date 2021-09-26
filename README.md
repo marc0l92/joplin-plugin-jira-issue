@@ -86,6 +86,3 @@ If you want to contribute to this plugin you can find here some userful referenc
 - [Joplin - Data API reference](https://joplinapp.org/api/references/rest_api/)
 - [Joplin - Plugin examples](https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins)
 
-
-# Future imrpvements
-* [ ] Add support for wysiwyg editor
