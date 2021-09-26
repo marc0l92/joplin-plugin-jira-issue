@@ -63,6 +63,7 @@ resolution = Unresolved AND assignee = currentUser() AND status = 'In Progress' 
 status = 'Open' order by priority DESC
 ```</pre>
 
+![Search results](./doc/search_table.png)
 
 ## Menu shortcuts
 If you don't remember the syntax to create a JiraIssue or a JiraSearch block you can use the templates in the tools menu and context menu
