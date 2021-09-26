@@ -53,7 +53,7 @@ export function buildRender(renderer: RenderRule, contentScriptId: string, eleme
 
         return `
         <div id="jira-${elementType}-root-${randomId}" class="jira-container container-${containerType}">
-            <div class="jira-${elementType} flex-center">
+            <div class="jira-issue flex-center">
                 <div class="lds-dual-ring"></div>
                 <span>-</span>
                 <span>Getting ${elementType} details...</span>
