@@ -32,7 +32,7 @@ export default function (context) {
                 ContainerType.Inline,
                 t => htmlTagRegExp.test(t.content),
                 t => t.content.match(htmlTagRegExpMulti).map(m => unpackAttributes(m.match(htmlTagRegExp).groups.attributes).key).join('\n'),
-                t => t.content.replace(/\n/g,'').match(extraTextRegExp).groups.extraText
+                t => t.content.replace(/\n/g, '').match(extraTextRegExp).groups.extraText
             )
         },
         assets: function () {

@@ -147,7 +147,7 @@ joplin.plugins.register({
         await joplin.contentScripts.onMessage(Config.MarkdownSearchFenceId, async (message: string) => {
             console.log('Search message:', message)
 
-            const queries = message.split('\n')
+            const queries = message.replace(/&quot;/g, '"').split('\n')
             let outputHtml = ''
             for (let i in queries) {
                 try {
