@@ -117,7 +117,7 @@ joplin.plugins.register({
         }
 
         await joplin.contentScripts.onMessage(Config.MarkdownIssueFenceId, async (message: string) => {
-            console.log('Issue message:', message)
+            // console.log('Issue message:', message)
 
             const issues = message.split('\n')
             let outputHtml = ''
@@ -125,7 +125,7 @@ joplin.plugins.register({
                 try {
                     const issueKey = extractIssueKey(issues[i])
                     if (issueKey) {
-                        console.log('Detected issue:', issueKey)
+                        // console.log('Detected issue:', issueKey)
 
                         const cachedIssue = cache.getCachedObject(issueKey)
                         if (cachedIssue) {
@@ -145,7 +145,7 @@ joplin.plugins.register({
         });
 
         await joplin.contentScripts.onMessage(Config.MarkdownSearchFenceId, async (message: string) => {
-            console.log('Search message:', message)
+            // console.log('Search message:', message)
 
             const queries = message.replace(/&quot;/g, '"').split('\n')
             let outputHtml = ''
@@ -153,13 +153,12 @@ joplin.plugins.register({
                 try {
                     const query = extractSearchQuery(queries[i])
                     if (query) {
-                        console.log('Detected query:', query)
+                        // console.log('Detected query:', query)
 
                         const cachedSearchResults = cache.getCachedObject(query)
                         if (cachedSearchResults) {
                             outputHtml += view.renderSearchResults(cachedSearchResults)
                         } else {
-                            console.log('maxSearchResults', settings.get('maxSearchResults'))
                             const newSearchResults = await jiraClient.getSearchResults(query, settings.get('maxSearchResults'))
                             for (let i in newSearchResults.issues) {
                                 await jiraClient.updateStatusColorCache(newSearchResults.issues[i].fields.status.name)

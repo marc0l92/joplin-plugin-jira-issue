@@ -75,7 +75,7 @@ export class View {
     }
 
     renderSearchResults(searchResultsJson: any): string {
-        console.log('renderSearchResults', searchResultsJson, this._settings)
+        // console.log('renderSearchResults', searchResultsJson, this._settings)
         let outputHtml = Templates.searchHead[0]
             + buildTableHeader(this._settings.get('searchTemplate'))
             + Templates.searchHead[1]
@@ -91,13 +91,13 @@ export class View {
     }
 
     renderIssue(issue: any): string {
-        console.log('renderIssue', issue, this._settings)
+        // console.log('renderIssue', issue, this._settings)
         const htmlTemplate = Templater(Templates.issue)
         return htmlTemplate(getIssueProperties(issue, this._settings))
     }
 
     renderError(query: string, error: string): string {
-        console.log('renderError', query, error)
+        // console.log('renderError', query, error)
         const template = Templater(Templates.error)
 
         return template({
