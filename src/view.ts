@@ -52,7 +52,11 @@ function getIssueProperties(issue: any, settings: Settings): any {
 function buildTableHeader(template: string): string {
     let outputHtml = ''
     for (let i = 0; i < template.length; i++) {
-        outputHtml += '<th>' + Templates.searchColumns[template[i]].title + '</th>'
+        if (template[i] in Templates.searchColumns) {
+            outputHtml += '<th>' + Templates.searchColumns[template[i]].title + '</th>'
+        } else {
+            throw 'Invalid character found in Search display template: "' + template[i] + '"'
+        }
     }
     return outputHtml
 }
@@ -60,9 +64,13 @@ function buildTableHeader(template: string): string {
 function buildTableRow(template: string, issueProperties: any): string {
     let outputHtml = ''
     for (let i = 0; i < template.length; i++) {
-        const columnHtmlTemplate = Templater(Templates.searchColumns[template[i]].body)
-        const attributes = Templates.searchColumns[template[i]].noTextWrap ? 'class="no-text-wrap"' : ''
-        outputHtml += `<td ${attributes}>` + columnHtmlTemplate(issueProperties) + '</td>'
+        if (template[i] in Templates.searchColumns) {
+            const columnHtmlTemplate = Templater(Templates.searchColumns[template[i]].body)
+            const attributes = Templates.searchColumns[template[i]].noTextWrap ? 'class="no-text-wrap"' : ''
+            outputHtml += `<td ${attributes}>` + columnHtmlTemplate(issueProperties) + '</td>'
+        } else {
+            throw 'Invalid character found in Search display template: "' + template[i] + '"'
+        }
     }
     return outputHtml
 }
