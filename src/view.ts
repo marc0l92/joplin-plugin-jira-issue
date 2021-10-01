@@ -7,10 +7,12 @@ function getDate(dateTime: string): string {
 
 function getIssueProperties(issue: any, settings: Settings): any {
     let progress
-    if (issue.fields.aggregateprogress.percent) {
-        progress = issue.fields.aggregateprogress.percent
-    } else if (issue.fields.aggregateprogress.total > 0) {
-        progress = issue.fields.aggregateprogress.progress / issue.fields.aggregateprogress.total * 100
+    if (issue.fields && issue.fields.aggregateprogress) {
+        if (issue.fields.aggregateprogress.percent) {
+            progress = issue.fields.aggregateprogress.percent
+        } else if (issue.fields.aggregateprogress.total > 0) {
+            progress = issue.fields.aggregateprogress.progress / issue.fields.aggregateprogress.total * 100
+        }
     }
 
     return {
