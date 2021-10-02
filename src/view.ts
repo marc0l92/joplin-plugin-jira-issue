@@ -278,6 +278,13 @@ const Templates = {
             {{resolution}}
             {{/if}}`,
         },
+        '%': {
+            title: 'Percentage',
+            body: `
+            {{#if (progress)}}
+            {{progress}}%
+            {{/if}}`,
+        },
     },
 
     searchFoot: `

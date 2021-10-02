@@ -10,21 +10,23 @@ enum SettingDefaults {
     CacheTime = '15m',
     StatusColor = 'medium-gray',
     MaxSearchResults = 10,
+    // IssueTemplate = 'tk-us;pcra%',
+    // IssueInlineTemplate = 'tks;upcra%',
     SearchTemplate = 'kut<>rapsd',
     TemplateLegend = `
- k: $.key ;
- u: $.fields.summary ;
- s: $.fields.status ;
- c: $.fields.creator ;
- r: $.fields.reporter ;
- a: $.fields.assignee ;
- p: $.fields.priority ;
- d: $.fields.duedate ;
- %: $.fields.aggregateprogress ;
- t: $.fields.issuetype ;
- e: $.fields.resolution ;
- <: $.fields.created ;
- >: $.fields.updated ;
+ 'k': $.key |
+ 'u': $.fields.summary |
+ 't': $.fields.issuetype |
+ '<': $.fields.created |
+ '>': $.fields.updated |
+ 'd': $.fields.duedate |
+ 'c': $.fields.creator |
+ 'r': $.fields.reporter |
+ 'a': $.fields.assignee |
+ 'p': $.fields.priority |
+ 's': $.fields.status |
+ 'e': $.fields.resolution |
+ '%': $.fields.aggregateprogress
 `
 }
 
@@ -83,6 +85,24 @@ export class Settings {
             label: 'Search: max reults count',
             description: 'Maximum number of issues retrieved during a jira-search.',
         },
+        // issueBlockTemplate: {
+        //     value: SettingDefaults.IssueTemplate,
+        //     type: SettingItemType.String,
+        //     section: 'jiraIssue.settings',
+        //     public: true,
+        //     advanced: true,
+        //     label: 'Rendering: Block issue display template',
+        //     description: 'Data to display in the jira-issue block item.\n' + SettingDefaults.TemplateLegend + '\n Default value: ' + SettingDefaults.IssueTemplate,
+        // },
+        // issueInlineTemplate: {
+        //     value: SettingDefaults.IssueInlineTemplate,
+        //     type: SettingItemType.String,
+        //     section: 'jiraIssue.settings',
+        //     public: true,
+        //     advanced: true,
+        //     label: 'Rendering: Inline issue display template',
+        //     description: 'Data to display in the jira-issue inline item.\n' + SettingDefaults.TemplateLegend + '\n Default value: ' + SettingDefaults.IssueInlineTemplate,
+        // },
         searchTemplate: {
             value: SettingDefaults.SearchTemplate,
             type: SettingItemType.String,

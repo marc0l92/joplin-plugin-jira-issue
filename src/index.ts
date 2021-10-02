@@ -25,6 +25,7 @@ const CommandsId = {
     IssueFence: 'jiraIssue-issueFenceTemplate',
     SearchInline: 'jiraIssue-searchInlineTemplate',
     SearchFence: 'jiraIssue-searchFenceTemplate',
+    ClearCache: 'jiraIssue-clearCache',
 }
 
 joplin.plugins.register({
@@ -76,6 +77,14 @@ joplin.plugins.register({
             iconName: 'fa fa-pencil',
             execute: async () => {
                 await joplin.commands.execute('insertText', Templates.SearchFence)
+            },
+        })
+        await joplin.commands.register({
+            name: CommandsId.ClearCache,
+            label: 'JiraIssue: Clear cache',
+            iconName: 'fa fa-sync',
+            execute: async () => {
+                cache.clear()
             },
         })
 
