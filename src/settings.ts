@@ -150,7 +150,7 @@ export class Settings {
         await joplin.settings.registerSection('jiraIssue.settings', {
             label: 'Jira Issue',
             iconName: 'fa fa-sitemap',
-            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. For more info: https://github.com/marc0l92/joplin-plugin-jira-issue#readme'
+            description: 'JiraIssue allows you to track your jira issues from Joplin and to update their status when it is modified on Jira. For more info on the plugin: https://github.com/marc0l92/joplin-plugin-jira-issue#readme'
         })
 
         await joplin.settings.registerSettings(this._config)
