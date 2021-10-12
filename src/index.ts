@@ -136,15 +136,13 @@ joplin.plugins.register({
                     if (issueKey) {
                         // console.log('Detected issue:', issueKey)
 
-                        const cachedIssue = cache.getCachedObject(issueKey)
-                        if (cachedIssue) {
-                            outputHtml += view.renderIssue(cachedIssue)
-                        } else {
-                            const newIssue = await jiraClient.getIssue(issueKey)
-                            await jiraClient.updateStatusColorCache(newIssue.fields.status.name)
-                            cache.addCachedObject(issueKey, newIssue)
-                            outputHtml += view.renderIssue(newIssue)
+                        let cachedIssue = cache.getCachedObject(issueKey)
+                        if (!cachedIssue) {
+                            cachedIssue = await jiraClient.getIssue(issueKey)
+                            await jiraClient.updateStatusColorCache(cachedIssue.fields.status.name)
+                            cache.addCachedObject(issueKey, cachedIssue)
                         }
+                        outputHtml += view.renderIssue(cachedIssue)
                     }
                 } catch (err) {
                     outputHtml += view.renderError(issues[i], err)
@@ -164,17 +162,15 @@ joplin.plugins.register({
                     if (query) {
                         // console.log('Detected query:', query)
 
-                        const cachedSearchResults = cache.getCachedObject(query)
-                        if (cachedSearchResults) {
-                            outputHtml += view.renderSearchResults(cachedSearchResults)
-                        } else {
-                            const newSearchResults = await jiraClient.getSearchResults(query, settings.get('maxSearchResults'))
-                            for (let i in newSearchResults.issues) {
-                                await jiraClient.updateStatusColorCache(newSearchResults.issues[i].fields.status.name)
+                        let cachedSearchResults = cache.getCachedObject(query)
+                        if (!cachedSearchResults) {
+                            cachedSearchResults = await jiraClient.getSearchResults(query, settings.get('maxSearchResults'))
+                            for (let i in cachedSearchResults.issues) {
+                                await jiraClient.updateStatusColorCache(cachedSearchResults.issues[i].fields.status.name)
                             }
-                            cache.addCachedObject(query, newSearchResults)
-                            outputHtml += view.renderSearchResults(newSearchResults)
+                            cache.addCachedObject(query, cachedSearchResults)
                         }
+                        outputHtml += view.renderSearchResults(cachedSearchResults)
                     }
                 } catch (err) {
                     outputHtml += view.renderError(queries[i], err)
