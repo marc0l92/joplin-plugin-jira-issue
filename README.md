@@ -76,7 +76,7 @@ If you don't remember the syntax to create a JiraIssue or a JiraSearch block you
 ## Extra hints
 - If you need to use the double quotes (`"`) in the JiraSearch inline query you can replace them with (`'`) or the html tag `&quot;`
 - The tag names are case insensitive
-- This plugin is modifying the HTML rendering of the markdown so the wysiwyg editor is not supported
+- This plugin is modifying the HTML rendering of the markdown so the WYSIWYG editor is not supported
 
 
 # Development
