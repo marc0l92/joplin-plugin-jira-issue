@@ -1,7 +1,7 @@
 import * as MarkdownIt from "markdown-it"
 import { unpackAttributes, buildRender, ElementType, ContainerType } from './contentScriptUtils'
 
-const fenceNameRegExp = /jira-?issue/i
+const fenceNameRegExp = /^jira-?issue$/i
 const htmlTagRegExpMulti = /<jiraissue +(?<attributes>[^>]+?) *\/?>/gi
 const htmlTagRegExp = /<jiraissue +(?<attributes>[^>]+?) *\/?>/i
 const extraTextRegExp = /.*<jiraissue +[^>]+? *\/?>(?<extraText>.*)/i

@@ -1,7 +1,7 @@
 import * as MarkdownIt from "markdown-it"
 import { buildRender, ContainerType, ElementType, unpackAttributes } from './contentScriptUtils'
 
-const fenceNameRegExp = /jira-?search/i
+const fenceNameRegExp = /^jira-?search$/i
 const htmlTagRegExpMulti = /<jirasearch +(?<attributes>[^>]+?) *\/?>/gi
 const htmlTagRegExp = /<jirasearch +(?<attributes>[^>]+?) *\/?>/i
 const extraTextRegExp = /.*<jirasearch +[^>]+? *\/?>(?<extraText>.*)/i
