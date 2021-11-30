@@ -49,7 +49,7 @@ joplin.plugins.register({
         // Register command
         await joplin.commands.register({
             name: CommandsId.IssueInline,
-            label: 'JiraIssue: Insert inline issue template',
+            label: 'Insert inline issue template',
             iconName: 'fa fa-pencil',
             execute: async () => {
                 await joplin.commands.execute('insertText', Templates.IssueInline)
@@ -57,7 +57,7 @@ joplin.plugins.register({
         })
         await joplin.commands.register({
             name: CommandsId.IssueFence,
-            label: 'JiraIssue: Insert issues block template',
+            label: 'Insert issues block template',
             iconName: 'fa fa-pencil',
             execute: async () => {
                 await joplin.commands.execute('insertText', Templates.IssueFence)
@@ -65,7 +65,7 @@ joplin.plugins.register({
         })
         await joplin.commands.register({
             name: CommandsId.SearchInline,
-            label: 'JiraIssue: Insert inline search template',
+            label: 'Insert inline search template',
             iconName: 'fa fa-pencil',
             execute: async () => {
                 await joplin.commands.execute('insertText', Templates.SearchInline)
@@ -73,7 +73,7 @@ joplin.plugins.register({
         })
         await joplin.commands.register({
             name: CommandsId.SearchFence,
-            label: 'JiraIssue: Insert searches block template',
+            label: 'Insert searches block template',
             iconName: 'fa fa-pencil',
             execute: async () => {
                 await joplin.commands.execute('insertText', Templates.SearchFence)
@@ -81,7 +81,7 @@ joplin.plugins.register({
         })
         await joplin.commands.register({
             name: CommandsId.ClearCache,
-            label: 'JiraIssue: Clear cache',
+            label: 'Clear cache',
             iconName: 'fa fa-sync',
             execute: async () => {
                 cache.clear()
