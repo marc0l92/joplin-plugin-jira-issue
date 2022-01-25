@@ -28,7 +28,7 @@ export function unpackAttributes(attributesStr: string): any {
     return attributesObj
 }
 
-export function buildRender(renderer: RenderRule, contentScriptId: string, elementType: ElementType, containerType: ContainerType, checkToken: TokenCheck, extractContent: TokenTransform, extractExtraText: TokenTransform = t => '') {
+export function buildRenderer(renderer: RenderRule, contentScriptId: string, elementType: ElementType, containerType: ContainerType, checkToken: TokenCheck, extractContent: TokenTransform, extractExtraText: TokenTransform = t => '') {
     const defaultRender = renderer || function (tokens, idx, options, env, self) {
         return self.renderToken(tokens, idx, options)
     }
