@@ -40,7 +40,7 @@ joplin.plugins.register({
          */
 
         // Register settings
-        settings.register();
+        await settings.register();
         joplin.settings.onChange(async (event: ChangeEvent) => {
             await settings.read(event)
             cache.clear()
