@@ -52,7 +52,7 @@ In order to view more details about the issue it is possible to expand it:
 ![Expand Issue](./doc/issue_expand.gif)
 
 ### JQL Search
-Is it possible to show the results of JQL query in a table using one of the folliwing syntax
+Is it possible to show the results of JQL query in a table using one of the following syntax
 ```
 <JiraSearch jql="resolution = Unresolved AND assignee = currentUser() AND status = 'In Progress' order by priority DESC">
 ```
@@ -80,7 +80,7 @@ If you don't remember the syntax to create a JiraIssue or a JiraSearch block you
 
 
 # Development
-If you want to contribute to this plugin you can find here some userful references:
+If you want to contribute to this plugin you can find here some useful references:
 
 - [Joplin - Getting started with plugin development](https://joplinapp.org/api/get_started/plugins/)
 - [Joplin - Plugin API reference](https://joplinapp.org/api/references/plugin_api/classes/joplin.html)
