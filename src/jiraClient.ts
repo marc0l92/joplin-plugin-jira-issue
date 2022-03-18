@@ -32,6 +32,9 @@ export class JiraClient {
         if (this._settings.get('username')) {
             requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')))
         }
+        else {
+            requestHeaders.set('Authorization', 'Bearer ' + this._settings.get('password'))
+        }
         const options: RequestInit = {
             method: 'GET',
             headers: requestHeaders,
@@ -73,6 +76,9 @@ export class JiraClient {
         const requestHeaders: HeadersInit = new Headers
         if (this._settings.get('username')) {
             requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')))
+        }
+        else {
+            requestHeaders.set('Authorization', 'Bearer ' + this._settings.get('password'))
         }
         const queryParameters = new URLSearchParams({
             jql: query,
@@ -127,6 +133,9 @@ export class JiraClient {
         const requestHeaders: HeadersInit = new Headers
         if (this._settings.get('username')) {
             requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')))
+        }
+        else {
+            requestHeaders.set('Authorization', 'Bearer ' + this._settings.get('password'))
         }
         const options: RequestInit = {
             method: 'GET',
