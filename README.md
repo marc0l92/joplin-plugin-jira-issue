@@ -17,6 +17,13 @@ Use the Joplin plugin manager to install it (`Joplin > Options > Plugins`)
 
 ## 2. Configure connection
 In the option menu you must configure the connection to your company Atlassian Jira server: host, username and password.
+
+There are three authentication methods:
+
+- Open: username and password fields must be empty.
+- [Basic](https://datatracker.ietf.org/doc/html/rfc7617): username and password fields must be filled.
+- [Bearer](https://datatracker.ietf.org/doc/html/rfc6750): username field must be empty and password field must contain the token.
+
 ![Options](./doc/options.png)
 
 ## 3. Markdown syntax
