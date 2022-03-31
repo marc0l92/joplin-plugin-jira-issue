@@ -4,7 +4,6 @@ import { SettingItem, SettingItemType } from 'api/types'
 const ms = require('ms')
 
 enum SettingDefaults {
-    Default = 'default',
     JiraHost = 'https://jira.secondlife.com',
     ApiBasePath = '/rest/api/latest',
     CacheTime = '15m',
@@ -46,7 +45,7 @@ export class Settings {
             public: true,
             advanced: false,
             label: 'Connection: host',
-            description: 'Hostname of your company jira server.',
+            description: 'Hostname of your company Jira server.',
         },
         username: {
             value: '',
@@ -55,7 +54,7 @@ export class Settings {
             public: true,
             advanced: false,
             label: 'Connection: username',
-            description: 'Username of your jira account used to access the API using basic authentication.',
+            description: 'Username of your Jira account used to access the API using basic authentication.',
         },
         password: {
             value: '',
@@ -65,7 +64,7 @@ export class Settings {
             advanced: false,
             secure: true,
             label: 'Connection: password',
-            description: 'Password of your jira account used to access the API using basic authentication.',
+            description: 'Password of your Jira account used to access the API using basic authentication.',
         },
         cacheTime: {
             value: SettingDefaults.CacheTime,
@@ -82,7 +81,7 @@ export class Settings {
             section: 'jiraIssue.settings',
             public: true,
             advanced: false,
-            label: 'Search: max reults count',
+            label: 'Search: max results count',
             description: 'Maximum number of issues retrieved during a jira-search.',
         },
         // issueBlockTemplate: {

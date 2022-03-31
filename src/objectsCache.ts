@@ -1,5 +1,5 @@
 import { Settings } from "./settings"
-const ms = require('ms')
+import ms = require('ms')
 
 interface Cache {
     [key: string]: {
