@@ -1,6 +1,6 @@
 # Joplin Plugin - Jira Issue
 
-This plugin allows you to track the progress of [Atlassian Jira](https://www.atlassian.com/software/jira) Issues from your [Joplin](https://joplinapp.org/) notes.
+This plugin allows you to track the progress of [Atlassian Jira](https://www.atlassian.com/software/jira) issues from your [Joplin](https://joplinapp.org/) notes.
 
 
 ## 1. Install the plugin
