@@ -96,8 +96,8 @@ If you want to contribute to this plugin you can find here some useful reference
 - [Joplin - Plugin examples](https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins)
 
 ## Knows issues to compile the plugin
-In case of node.js v17 or above set this flag to install the dependencies
-```
+In case of node.js v17 or above, set this flag to install the dependencies while running them with git bash:
+```bash
 export NODE_OPTIONS=--openssl-legacy-provider
 npm install
 ```
