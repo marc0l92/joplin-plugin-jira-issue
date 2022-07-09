@@ -3,7 +3,7 @@ import { ChangeEvent } from 'api/JoplinSettings'
 import { SettingItem, SettingItemType } from 'api/types'
 const ms = require('ms')
 
-enum SettingDefaults {
+export enum SettingDefaults {
     JiraHost = 'https://jira.secondlife.com',
     ApiBasePath = '/rest/api/latest',
     CacheTime = '15m',

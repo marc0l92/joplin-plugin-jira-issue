@@ -1,4 +1,4 @@
-import { Settings } from "./settings"
+import { SettingDefaults, Settings } from "./settings"
 
 enum Config {
     Timeout = 5000,
@@ -127,7 +127,7 @@ export class JiraClient {
         }
 
         // Request the status color using the API
-        const url: URL = new URL(this._settings.get('jiraHost') + this._settings.apiBasePath + '/status/' + status)
+        const url: URL = new URL(this._settings.get('jiraHost') + this._settings.apiBasePath + '/status/' + encodeURI(status))
         const requestHeaders: HeadersInit = new Headers
         if (this._settings.get('username')) {
             requestHeaders.set('Authorization', 'Basic ' + btoa(this._settings.get('username') + ':' + this._settings.get('password')))
@@ -162,13 +162,8 @@ export class JiraClient {
             }
         } else {
             console.error('JiraClient::getIssue::error', response)
-            let responseJson: any
-            try {
-                responseJson = await response.json()
-            } catch (e) {
-                throw 'HTTP status ' + response.status
-            }
-            throw responseJson['errorMessages'].join('\n')
+            this._settings.addStatusColor(status, SettingDefaults.StatusColor)
+            return
         }
     }
 }
