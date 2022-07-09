@@ -15,7 +15,7 @@
   "devDependencies": {
     "@types/markdown-it": "^12.2.1",
     "@types/ms": "^0.7.31",
-    "@types/node": "^14.0.14",
+    "@types/node": "^14.18.21",
     "chalk": "^4.1.0",
     "copy-webpack-plugin": "^6.1.0",
     "fs-extra": "^9.0.1",

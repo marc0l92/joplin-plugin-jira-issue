@@ -11,7 +11,7 @@ export class JiraClient {
         this._settings = settings
     }
 
-    async fetchWithTimeout(resource, options) {
+    private async fetchWithTimeout(resource, options) {
         const { timeout = Config.Timeout } = options
 
         const controller = new AbortController()
@@ -19,7 +19,7 @@ export class JiraClient {
 
         const response = await fetch(resource, {
             ...options,
-            signal: controller.signal
+            signal: controller.signal,
         })
         clearTimeout(id)
 

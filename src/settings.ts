@@ -26,7 +26,7 @@ enum SettingDefaults {
  's': $.fields.status |
  'e': $.fields.resolution |
  '%': $.fields.aggregateprogress
-`
+`,
 }
 
 interface SettingsConfig {
@@ -111,6 +111,15 @@ export class Settings {
             label: 'Rendering: Search display template',
             description: 'Column to display in the jira-search table.\n' + SettingDefaults.TemplateLegend + '\n Default value: ' + SettingDefaults.SearchTemplate,
         },
+        rejectUnauthorized: {
+            value: true,
+            type: SettingItemType.Bool,
+            section: 'jiraIssue.settings',
+            public: true,
+            advanced: true,
+            label: 'Connection: Reject invalid SSL certificate',
+            description: 'Reject invalid or self-signed SSL certificates. It is recommended to keep this option enabled for security reasons.',
+        }
     }
 
     // Checks on the settings

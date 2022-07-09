@@ -95,3 +95,10 @@ If you want to contribute to this plugin you can find here some useful reference
 - [Joplin - Data API reference](https://joplinapp.org/api/references/rest_api/)
 - [Joplin - Plugin examples](https://github.com/laurent22/joplin/tree/dev/packages/app-cli/tests/support/plugins)
 
+## Knows issues to compile the plugin
+In case of node.js v17 or above set this flag to install the dependencies
+```
+export NODE_OPTIONS=--openssl-legacy-provider
+npm install
+```
+
