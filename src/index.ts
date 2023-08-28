@@ -14,9 +14,9 @@ enum Config {
 }
 
 const Templates = {
-    IssueInline: '<JiraIssue key="AAA-123">',
+    IssueInline: '<JiraIssue key="AAA-123" />',
     IssueFence: '```jira-issue\n\n```',
-    SearchInline: '<JiraSearch jql="">',
+    SearchInline: '<JiraSearch jql="" />',
     SearchFence: '```jira-search\n\n```',
 }
 
